@@ -1,0 +1,18 @@
+{
+  "name": "finance-ecosystem",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend-finance-tracker-v2",
+    "frontend-stock-news-feed"
+  ],
+  "scripts": {
+    "start:backend": "npm run dev --workspace=backend",
+    "start:finance": "npm run dev --workspace=frontend-finance-tracker-v2",
+    "start:news": "npm run dev --workspace=frontend-stock-news-feed",
+    "dev": "npx concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend-finance-tracker-v2\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
