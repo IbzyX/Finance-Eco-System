@@ -1,0 +1,8 @@
+.Home-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: aqua;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
