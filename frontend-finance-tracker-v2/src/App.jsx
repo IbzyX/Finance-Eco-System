@@ -8,11 +8,13 @@ export default function App() {
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
-      <main>
-        <Outlet />
-      </main>
+      <div className="app-container">
+        {!hideNavbar && <Navbar />}
+        <main>
+          <Outlet />
+        </main>
+        
+      </div>
     </>
-    
   );
 }
