@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Navbar() {
+
+    const { loginWithRedirect, Logout, user, isAuthenticated, isLoading } = useAuth0();
 
   // Simulated login state
     const [isLoggedIn, setIsLoggedIn] = useState(true); // set to false to test logged-out state
@@ -40,7 +43,7 @@ export default function Navbar() {
             marginLeft: "2rem",
             position: "relative" 
         }}>
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           <>
             <Link to="/" style={navLinkStyle}>Home</Link>
             <Link to="/dashboard" style={navLinkStyle}>Dashboard</Link>
@@ -63,7 +66,7 @@ export default function Navbar() {
                     <div style={dropdownStyle}>
                         <Link to="/settings" style={dropdownLinkStyle}>Settings</Link>
                         <div style={{ borderBottom: "2px solid white",margin: "7px" }}></div>
-                        <button onClick={handleLogout} style={logoutButtonStyle}>
+                        <button onClick={() => Logout({ returnTo: window.location.origin })} style={logoutButtonStyle}>
                             Logout
                         </button>
                     </div>
@@ -71,7 +74,9 @@ export default function Navbar() {
             </div>
           </>
         ) : (
-            <Link to="/login" style={navLinkStyle}>Login</Link>
+            <button onClick={() => loginWithRedirect() }>
+                Login
+            </button>
         )}
       </div>
     </nav>

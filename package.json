@@ -10,14 +10,11 @@
     "start:backend": "npm run dev --workspace=backend",
     "start:finance": "npm run dev --workspace=frontend-finance-tracker-v2",
     "start:news": "npm run dev --workspace=frontend-stock-news-feed",
-    "dev": "npx concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend-finance-tracker-v2\""
+    "dev": "npx concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend-finance-tracker-v2\"",
+    "install:all": "npm install --workspaces"
+
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.4"
   }
 }

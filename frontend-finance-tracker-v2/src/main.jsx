@@ -1,11 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Auth0Provider } from "@auth0/auth0-react";
+
 import App from "./App.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Settings from "./pages/Settings.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
+
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -18,14 +21,20 @@ const router = createBrowserRouter([
       { path: "/settings", element: <Settings /> },
     ],
   },
-  {
-    path: "/login",
-    element: <Login />,
-  },
+  { path: "/login", element: <Login /> },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <Auth0Provider
+    domain={import.meta.env.VITE_AUTH0_DOMAIN}
+    clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+    authorizationParams={{
+      redirect_uri: window.location.origin,
+      audience: "https://finance-tracker-api/", 
+    }}
+  >
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  </Auth0Provider>
 );
