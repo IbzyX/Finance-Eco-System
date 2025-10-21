@@ -1,8 +1,90 @@
-.Home-btn {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background-color: aqua;
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: black;
+}
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 75vh;
+    width: 80%;
+    margin: 0 auto;
+
+}
+.sidebar {
+    position: absolute;
+    background-color: #1c1c1c;
+    width: 350px;
+    height: 75vh;
+    top: 16%;
+    left: 16rem;
+    border-radius: 1.5rem;
+    align-items: center;
+    justify-items: center;
+}
+.content-area {
+    position: absolute;
+    background-color: #2b2b2b;
+    width: 1000px;
+    height: 75vh;
+    top: 16%;
+    right: 16rem;
+    border-radius: 1.5rem;
+    overflow-y: auto;
+}
+
+
+
+
+
+h1 {
+    justify-self: center;
     color: white;
+    font-weight: bold;
+    font-size: 2rem;
+}
+h2 {
+    justify-self: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+.divider {
+    border-bottom: 2px solid #4d4d4d;
+    width: 80%;
+    margin: 10px;
+}
+
+
+
+
+button {
+    display: flex;
+    align-items: center;
+    padding: 1rem 3rem;
+    border-radius: 10px;
+    background-color: #1c1c1c;
+    color: #a1a1a1;
+    border: none;
+    font-size: 1.5rem;
+}
+button:hover {
+    color: #14ff3f;
+    
+}
+.logout:hover {
+    color: red;
+}
+.link-btn {
+    display: flex;
+    padding: 1rem 3rem;
+    background-color: none;
     text-decoration: none;
-    border-radius: 4px;
+    color: #a1a1a1;
+    font-size: 1.5rem;
+    border-radius: 10px;
+}
+.link-btn:hover {
+    color: #14ff3f;
 }

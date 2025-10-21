@@ -1,21 +1,33 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Navbar() {
 
-    const { loginWithRedirect, Logout, user, isAuthenticated, isLoading } = useAuth0();
-
-  // Simulated login state
-    const [isLoggedIn, setIsLoggedIn] = useState(true); // set to false to test logged-out state
-    const [dropdownOpen, setDropdownOpen] = useState(true); // controls settings dropdown
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
 
 
-    const toggleDropdown = () => setDropdownOpen(prev => !prev);
-    const handleLogout = () => {
-        setIsLoggedIn(false);
+  {/* -- Dropdown -- */}
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const toggleDropdown = () => setDropdownOpen(prev => !prev);
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+  const shouldShowDropdown = isHovered || isDropdownOpen;
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
-    };
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (isLoading) return null;
 
   return (
     <nav style={{
@@ -28,11 +40,15 @@ export default function Navbar() {
         borderBottom: "4px solid #ccc",
         }}>
 
+
+
         {/* --- Navbar left style --- */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             <img src="./favicon.png" alt="logo" style={{ height: "50px" }} />
             <h2 style={{ fontSize: "1.75rem", margin: "0rem", color: "white" }}>Finance Tracker</h2>
         </div>
+
+
 
         {/* --- Navbar right style --- */}
         <div style={{
@@ -49,32 +65,69 @@ export default function Navbar() {
             <Link to="/dashboard" style={navLinkStyle}>Dashboard</Link>
 
             {/* Settings Dropdown */}
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative" }}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                ref={dropdownRef}
+                >
+                {/* Click or Hover */}
                 <button
                     onClick={toggleDropdown}
                     style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: 0,
-                    }}>
-
-                    <i className="fa-solid fa-gear" style={{ color: "white", fontSize: "1.75rem" }}></i>
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px"
+                    }}
+                >
+                    {/* Profile Icon */}
+                    <img
+                    src={user?.picture}
+                    alt="Profile"
+                    style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        border: "2px solid white",
+                        objectFit: "cover"
+                    }}
+                    />
+                    {/* Down Arrow */}
+                    <span style={{ color: "white", fontSize: "0.75rem" }}>▼</span> 
                 </button>
 
-              {dropdownOpen && (
+                {/* Dropdown (Shown on hover or click) */}
+                {shouldShowDropdown && (
                     <div style={dropdownStyle}>
-                        <Link to="/settings" style={dropdownLinkStyle}>Settings</Link>
-                        <div style={{ borderBottom: "2px solid white",margin: "7px" }}></div>
-                        <button onClick={() => Logout({ returnTo: window.location.origin })} style={logoutButtonStyle}>
-                            Logout
-                        </button>
+                    <Link to="/settings" style={dropdownLinkStyle}>Settings</Link>
+                    <div style={{ borderBottom: "2px solid white", margin: "7px" }}></div>
+                    <button onClick={() => logout({ returnTo: window.location.origin })} style={logoutButtonStyle}>
+                        Logout
+                    </button>
                     </div>
                 )}
             </div>
+
           </>
         ) : (
-            <button onClick={() => loginWithRedirect() }>
+            <button 
+            onClick={() => loginWithRedirect() } 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+                background: isHovered ? "#444" : "none",
+                padding: "10px 20px",
+                fontSize: "1.25rem",
+                color: "white",
+                border: isHovered ? "1px solid white" : "none" ,
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+            }}>
                 Login
             </button>
         )}
@@ -93,9 +146,10 @@ const dropdownStyle = {
     position: "absolute",
     right: 0,
     top: "100%",
-    backgroundColor: "#444",
+    backgroundColor: "#303030",
     padding: "10px",
-    borderRadius: "4px",
+    border: "2px solid #b4b4b4ff",
+    borderRadius: "10px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
     zIndex: 10,
     minWidth: "150px",

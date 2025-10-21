@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 export default function App() {
   const location = useLocation();
 
-  const hideNavbar = ["/login", "/settings"].includes(location.pathname);
+  const hideNavbar = ["/login"].includes(location.pathname);
 
   return (
     <>
