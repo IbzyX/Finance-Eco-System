@@ -32,6 +32,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       redirect_uri: window.location.origin,
       audience: "https://finance-tracker-api/", 
     }}
+    cacheLocation="localstorage"
+    useRefreshTokens={true}
   >
     <React.StrictMode>
       <RouterProvider router={router} />

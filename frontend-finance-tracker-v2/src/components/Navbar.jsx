@@ -1,13 +1,30 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import { showSuccess } from "../utils/toast";
 
 export default function Navbar() {
 
-  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
+    /* -- User Authentication -- */
+    const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
+    const [hasShownLoginToast, setHasShownLoginToast] = useState(false);
+
+    //login alert
+    useEffect(() => {
+        if(isAuthenticated && !hasShownLoginToast) {
+            showSuccess(`Welcome back,${user?.name || "User"}!`)
+            setHasShownLoginToast(true);
+        }
+    }, [isAuthenticated, hasShownLoginToast, user]);
 
 
-  {/* -- Dropdown -- */}
+
+
+
+
+
+
+  /* -- Dropdown -- */
   const [isHovered, setIsHovered] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -64,13 +81,11 @@ export default function Navbar() {
             <Link to="/" style={navLinkStyle}>Home</Link>
             <Link to="/dashboard" style={navLinkStyle}>Dashboard</Link>
 
-            {/* Settings Dropdown */}
             <div style={{ position: "relative" }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 ref={dropdownRef}
                 >
-                {/* Click or Hover */}
                 <button
                     onClick={toggleDropdown}
                     style={{
@@ -84,7 +99,7 @@ export default function Navbar() {
                     gap: "5px"
                     }}
                 >
-                    {/* Profile Icon */}
+                    
                     <img
                     src={user?.picture}
                     alt="Profile"
@@ -96,11 +111,10 @@ export default function Navbar() {
                         objectFit: "cover"
                     }}
                     />
-                    {/* Down Arrow */}
+                    
                     <span style={{ color: "white", fontSize: "0.75rem" }}>▼</span> 
                 </button>
 
-                {/* Dropdown (Shown on hover or click) */}
                 {shouldShowDropdown && (
                     <div style={dropdownStyle}>
                     <Link to="/settings" style={dropdownLinkStyle}>Settings</Link>

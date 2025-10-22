@@ -59,7 +59,7 @@ h2 {
 
 
 
-button {
+.sidebar-btn {
     display: flex;
     align-items: center;
     padding: 1rem 3rem;
@@ -71,7 +71,16 @@ button {
 }
 button:hover {
     color: #14ff3f;
-    
+}
+.logout {
+    display: flex;
+    align-items: center;
+    padding: 1rem 3rem;
+    border-radius: 10px;
+    background-color: #1c1c1c;
+    color: #a1a1a1;
+    border: none;
+    font-size: 1.5rem;
 }
 .logout:hover {
     color: red;
