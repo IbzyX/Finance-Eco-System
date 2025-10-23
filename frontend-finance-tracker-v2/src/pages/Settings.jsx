@@ -15,6 +15,8 @@ export default function Settings() {
           <aside className="sidebar">
             <h2>Profile</h2>
             <button className="sidebar-btn">Manage Profile</button>
+            <button className="sidebar-btn">Input Type</button>
+
             <div className="divider"></div>
             
             <h2>Links</h2>

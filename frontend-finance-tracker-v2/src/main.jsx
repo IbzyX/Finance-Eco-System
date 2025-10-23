@@ -11,6 +11,7 @@ import Login from "./pages/Login.jsx";
 
 import "./index.css";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -32,6 +33,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       redirect_uri: window.location.origin,
       audience: "https://finance-tracker-api/", 
     }}
+    onRedirectCallback={(appState) => {
+      const returnTo = appState?.returnTo || window.location.pathname;
+      window.history.replaceState({}, document.title, returnTo);
+    }}
+
+
+
+
     cacheLocation="localstorage"
     useRefreshTokens={true}
   >
