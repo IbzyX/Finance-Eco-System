@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { showSuccess } from "../utils/toast";
 
@@ -26,7 +26,12 @@ export default function Navbar() {
     const toggleDropdown = () => setDropdownOpen(prev => !prev);
     const handleMouseEnter = () => setIsHovered(true);
     const handleMouseLeave = () => setIsHovered(false);
-    const shouldShowDropdown = isHovered || isDropdownOpen;
+    //const shouldShowDropdown = isHovered || isDropdownOpen;
+
+    const handleDropdownAction = (callback) => {
+        if (callback) callback();
+        setDropdownOpen(false);
+    };
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -77,8 +82,25 @@ export default function Navbar() {
             }}>
             {isAuthenticated ? (
             <>
-                <Link to="/" style={navLinkStyle}>Home</Link>
-                <Link to="/dashboard" style={navLinkStyle}>Dashboard</Link>
+                <NavLink
+                    to="/" style={({ isActive }) => ({
+                        ...navLinkStyle,
+                        color: isActive ? "#00e676" : "white", // green when active
+                        borderBottom: isActive ? "2px solid #00e676" : "none",
+                    })}
+                    >
+                    Home
+                </NavLink>
+
+                <NavLink
+                    to="/dashboard" style={({ isActive }) => ({
+                        ...navLinkStyle,
+                        color: isActive ? "#00e676" : "white",
+                        borderBottom: isActive ? "2px solid #00e676" : "none",
+                    })}
+                    >
+                    Dashboard
+                </NavLink>
 
                 <div style={{ position: "relative" }}
                     onMouseEnter={handleMouseEnter}
@@ -114,10 +136,10 @@ export default function Navbar() {
                         <span style={{ color: "white", fontSize: "0.75rem" }}>▼</span> 
                     </button>
 
-                    {shouldShowDropdown && (
+                    {isDropdownOpen /*shouldShowDropdown*/&& (
                         <div style={dropdownStyle}>
-                        <Link to="/settings" style={dropdownLinkStyle}>Settings</Link>
-                        <button style={dropdownBtn}>Theme</button>
+                        <Link to="/settings" style={dropdownLinkStyle} onClick={() => handleDropdownAction()}>Settings</Link>
+                        <button style={dropdownBtn} onClick={() => handleDropdownAction()}>Theme</button>
                         <div style={{ borderBottom: "2px solid white", margin: "7px" }}></div>
 
                         <button onClick={() => logout({ returnTo: window.location.origin })} style={logoutButtonStyle}>
