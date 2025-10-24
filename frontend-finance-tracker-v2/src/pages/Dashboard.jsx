@@ -2,7 +2,8 @@ import { Link, Navigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import "./css/Dashboard.css";
-import Widget from "../components/Widgets";
+import Widget from "../components/widgets/Widgets";
+import UpcomingBill from "../components/widgets/UpcomingBills";
 
 export default function Dashboard() {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -11,18 +12,30 @@ export default function Dashboard() {
   if (!isAuthenticated) return <Navigate to="/" />;
 
   return (
-    <div className="dashboard">
-      <h1>Dashboard</h1>
-      <p>This is the dashboard page.</p>
-      <Widget size="small" title="Stock Summary">
-        $10000
+    <div 
+    style={{
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "center",
+      alignItems: "flex-start",
+      minHeight: "calc(100vh-110px)",
+      backgroundColor: "#000",
+      padding: "2rem",
+      gap: "2rem",
+    }}>
+
+
+
+      <Widget title="Upcoming Bills" size="medium">
+        <UpcomingBill />
       </Widget>
-      <Widget size="medium" title="investmetn">
-        $10209
+
+      <Widget title="Cashflow Chart" size="large">
+        <p>CashFlow chart placeholder</p>
       </Widget>
-      <Widget size="large" title="other">
-        $41234231
-      </Widget>
+
+
+
     </div>
   );
 }

@@ -1,0 +1,77 @@
+.widget {
+  background-color: #222;
+  color: white;
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.widget.medium {
+  width: 400px;
+  height: 250px;
+}
+.widget.large {
+  width: 600px;
+  height: 400px;
+}
+.widget.small {
+  width: 250px;
+  height: 150px;
+}
+.widget.expanded {
+  width: 90vw;
+  height: 80vh;
+  z-index: 10;
+  position: fixed;
+  top: 10vh;
+  left: 5vw;
+  background-color: #111;
+}
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.widget-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.widget-dropdown {
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.25rem;
+}
+
+.expand-btn {
+  background: none;
+  border: 1px solid #888;
+  color: white;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.expand-btn:hover {
+  background: #444;
+}
+.bills-table-container {
+  overflow-y: auto;
+  max-height: 150px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid #444;
+}
