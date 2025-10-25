@@ -18,16 +18,18 @@ export default function Widget({ title, size = "medium", children, onWidgetChang
                 <h3>{selectedWidget}</h3>
 
                 <div className="widget-controls">
-                    <select
-                        className="widget-dropdown"
-                        value={selectedWidget}
-                        onChange={handleWidgetChange}
-                    >
-                        <option value="Upcoming Bills">Upcoming Bills</option>
-                        <option value="Cashflow Chart">Cashflow Chart</option>
-                        <option value="Habits">Habits</option>
-                        <option value="Debt">Debt</option>
-                    </select>
+                    {expanded &&(
+                        <select
+                            className="widget-dropdown"
+                            value={selectedWidget}
+                            onChange={handleWidgetChange}
+                        >
+                            <option value="Upcoming Bills">Upcoming Bills</option>
+                            <option value="Cashflow Chart">Cashflow Chart</option>
+                            <option value="Habits">Habits</option>
+                            <option value="Debt">Debt</option>
+                        </select>
+                   )}
 
                     <button className="expand-btn" onClick={handleExpand}>
                         {expanded ?  "⤢ Collapse" : "⤢ Expand"}

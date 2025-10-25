@@ -5,6 +5,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 
 import App from "./App.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import DashbaordEdit from "./pages/DashboardEdit.jsx";
 import Settings from "./pages/Settings.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/dashboard", element: <Dashboard /> },
+      { path: "/dashboardEdit", element: <DashbaordEdit /> },
       { path: "/settings", element: <Settings /> },
     ],
   },

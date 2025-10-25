@@ -9,3 +9,35 @@
 }
 
 
+.dashboard-edit {
+  max-height: calc(100vh - 70px);
+  padding: 2rem;
+  background-color: #000;
+  color: white;
+}
+.edit-section {
+  display: flex;
+  height: 80%;
+  color: white;
+  
+}
+
+
+.edit-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.edit-controls button {
+  background: #222;
+  border: 1px solid #555;
+  color: white;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.edit-controls button:hover {
+  background: #333;
+}

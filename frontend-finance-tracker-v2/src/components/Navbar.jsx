@@ -76,7 +76,7 @@ export default function Navbar() {
             {/* --- Navbar left style --- */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <img src="./favicon.png" alt="logo" style={{ height: "50px" }} />
-                <h2 style={{ fontSize: "1.75rem", margin: "0rem", color: "white" }}>Finance Tracker</h2>
+                <h2 style={{ fontSize: "1.75rem", margin: "0rem", padding:"10px", color: "white" }}>Finance Tracker</h2>
             </div>
 
 
@@ -177,7 +177,7 @@ export default function Navbar() {
 
                             {isDashboard && (
                                 <div>
-                                    <Link to="" 
+                                    <Link to="/dashboardEdit" 
                                         style={{
                                             display: "block",
                                             color: hoveredItem === "editDashboard" ? "#00e676" : "white",
