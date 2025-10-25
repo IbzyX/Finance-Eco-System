@@ -20,7 +20,7 @@ export default function Settings() {
             <div className="divider"></div>
             
             <h2>Links</h2>
-            <Link to="" className="link-btn">Stock News Feed</Link>
+            <Link to="" className="logout">Stock News Feed</Link>
             <div className="divider"></div>
 
             <h2>General</h2>

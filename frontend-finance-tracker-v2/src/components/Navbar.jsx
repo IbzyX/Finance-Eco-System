@@ -9,6 +9,7 @@ export default function Navbar() {
     const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
     const [hasShownLoginToast, setHasShownLoginToast] = useState(false);
 
+
     //login alert
     useEffect(() => {
         if(isAuthenticated && !hasShownLoginToast) {
@@ -18,8 +19,10 @@ export default function Navbar() {
     }, [isAuthenticated, hasShownLoginToast, user]);
 
 
+    
     /* -- Dropdown -- */
     const [isHovered, setIsHovered] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState(null);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -44,12 +47,19 @@ export default function Navbar() {
     }, []);
 
     if (isLoading) return null;
+    const isDashboard = location.pathname === "/dashboard";
+
+
+
+
 
     return (
     <>
+        {/* --- Blur dropdown effect --- */}
         {isDropdownOpen && (
             <div style={overlayStyle} onClick={() => setDropdownOpen(false)}></div>
         )}
+        
         
         <nav style={{
             display: "flex",
@@ -82,6 +92,7 @@ export default function Navbar() {
             }}>
             {isAuthenticated ? (
             <>
+                {/* -- Home link -- */}
                 <NavLink
                     to="/" style={({ isActive }) => ({
                         ...navLinkStyle,
@@ -92,6 +103,7 @@ export default function Navbar() {
                     Home
                 </NavLink>
 
+                {/* -- Dashboard link -- */}
                 <NavLink
                     to="/dashboard" style={({ isActive }) => ({
                         ...navLinkStyle,
@@ -102,6 +114,8 @@ export default function Navbar() {
                     Dashboard
                 </NavLink>
 
+                
+                {/* -- Dropdown Btn -- */}
                 <div style={{ position: "relative" }}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
@@ -110,41 +124,128 @@ export default function Navbar() {
                     <button
                         onClick={toggleDropdown}
                         style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: 0,
-                        position: "relative",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px"
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                            position: "relative",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
                         }}
-                    >
-                        
-                        <img
-                        src={user?.picture}
-                        alt="Profile"
-                        style={{
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            border: "2px solid white",
-                            objectFit: "cover"
-                        }}
-                        />
-                        
-                        <span style={{ color: "white", fontSize: "0.75rem" }}>▼</span> 
+                        >
+                        {user?.picture ? (
+                            <img
+                            src={user.picture}
+                            alt="Profile"
+                            style={userImageStyle}
+                            />
+                        ) : (
+                            <div
+                            style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                backgroundColor: "#555",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "white",
+                                fontSize: "0.8rem",
+                            }}
+                            >
+                            ?
+                            </div>
+                        )}
+                        <span style={{ color: "white", fontSize: "0.75rem" }}>▼</span>
                     </button>
 
-                    {isDropdownOpen /*shouldShowDropdown*/&& (
-                        <div style={dropdownStyle}>
-                        <Link to="/settings" style={dropdownLinkStyle} onClick={() => handleDropdownAction()}>Settings</Link>
-                        <button style={dropdownBtn} onClick={() => handleDropdownAction()}>Theme</button>
-                        <div style={{ borderBottom: "2px solid white", margin: "7px" }}></div>
 
-                        <button onClick={() => logout({ returnTo: window.location.origin })} style={logoutButtonStyle}>
-                            Logout
-                        </button>
+                    {/* -- Dropdown content -- */}
+                    {isDropdownOpen /*shouldShowDropdown*/ && (
+                        <div style={dropdownStyle}>
+                            <div style={userInfo}>
+                                <img
+                                    src={user?.picture}
+                                    alt="Profile"
+                                    style={userImageStyle}
+                                />
+                                <p style={userNameStyle}>{user?.name || "User"}</p>
+                            </div>
+                            <div style={{ borderBottom: "2px solid #444", margin: "7px" }}></div>
+
+
+                            {isDashboard && (
+                                <div>
+                                    <Link to="" 
+                                        style={{
+                                            display: "block",
+                                            color: hoveredItem === "editDashboard" ? "#00e676" : "white",
+                                            textDecoration: "none",
+                                            padding: "8px 0",
+                                        }} 
+                                        onClick={() => handleDropdownAction()} 
+                                        onMouseEnter={() => setHoveredItem("editDashboard")}
+                                        onMouseLeave={() => setHoveredItem(null)}
+                                        >
+                                        Edit Dashboard
+                                    </Link>
+                                    
+                                    <div style={{ borderBottom: "2px solid #444", margin: "7px" }}></div>
+                                </div>
+                            )}
+
+
+                            <Link to="/settings" 
+                                style={{
+                                    display: "block",
+                                    color: hoveredItem === "settings" ? "#00e676" : "white",
+                                    textDecoration: "none",
+                                    padding: "8px 0",
+                                }} 
+                                onClick={() => handleDropdownAction()}
+                                onMouseEnter={() => setHoveredItem("settings")}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
+                                Settings
+                            </Link>
+
+                            <button 
+                                style={{
+                                    display: "block",
+                                    fontSize: "1.5rem",
+                                    padding: "8px 0",
+                                    color: hoveredItem === "theme" ? "#00e676" : "white",
+                                    backgroundColor:"#303030",
+                                    border: "none",
+                                }} 
+                                onClick={() => handleDropdownAction()}
+                                onMouseEnter={() => setHoveredItem("theme")}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
+                                Theme
+                            </button>
+                            <div style={{ borderBottom: "2px solid #444", margin: "7px" }}></div>
+
+
+                            <button 
+                                onClick={() => logout({ returnTo: window.location.origin })} 
+                                style={{
+                                    fontSize: "1.5rem",
+                                    background: "none",
+                                    border: "none",
+                                    color: hoveredItem === "logout" ? "red" : "white",
+                                    padding: "8px 0",
+                                    width: "100%",
+                                    textAlign: "left",
+                                    cursor: "pointer",
+                                }}
+                                onMouseEnter={() => setHoveredItem("logout")}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
+                                Logout
+                            </button>
+
                         </div>
                     )}
                 </div>
@@ -215,29 +316,23 @@ const dropdownStyle = {
     minWidth: "150px",
 };
 
-const dropdownBtn = {
-    display: "block",
-    fontSize: "1.5rem",
-    padding: "8px 0",
-    color: "white",
-    backgroundColor:"#303030",
-    border: "none",
+const userInfo = {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    paddingBottom: "10px",
+};
+const userImageStyle = {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    objectFit: "cover",
+    border: "2px solid white",
 };
 
-const dropdownLinkStyle = {
-    display: "block",
+const userNameStyle = {
     color: "white",
-    textDecoration: "none",
-    padding: "8px 0",
-};
-
-const logoutButtonStyle = {
-    fontSize: "1.5rem",
-    background: "none",
-    border: "none",
-    color: "white",
-    padding: "8px 0",
-    width: "100%",
-    textAlign: "left",
-    cursor: "pointer",
+    fontSize:"1.1rem",
+    margin: "0",
+    fontWeight: "500",
 };
