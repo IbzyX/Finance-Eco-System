@@ -9,35 +9,140 @@
 }
 
 
-.dashboard-edit {
-  max-height: calc(100vh - 70px);
-  padding: 2rem;
+
+
+
+
+
+
+/* --- Dashboard Edit --- */
+
+.dashboard-edit-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
   background-color: #000;
-  color: white;
-}
-.edit-section {
-  display: flex;
-  height: 80%;
-  color: white;
-  
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 
-.edit-controls {
+
+/* -- Grid container -- */
+.grid-container {
+  position: relative;
+  background-color: #484848;
+  padding: 1.5rem;
+  border-radius: 20px;
+  width: 1200px;
+  height: 850px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px #333;
+}
+.grid-container::before {
+  content: "";
+  position: absolute;
+  inset: 1.5rem;
+  background-image: 
+    linear-gradient(#999 1px, transparent 1px),
+    linear-gradient(90deg, #999 1px, transparent 1px);
+  background-size: calc(950px / 3) 52px;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+}
+.dashboard-grid {
+  position: relative;
+  z-index: 1;
+}
+.dashboard-edit-container, 
+.dashboard-grid, 
+.widget {
+  user-select: none;        /* stops text highlighting */
+  -webkit-user-select: none; /* Safari support */
+  -moz-user-select: none;    /* Firefox support */
+  -ms-user-select: none;     /* Edge/IE support */
+}
+
+
+
+
+
+/* -- List Container -- */
+.widget-list-container {
+  width: 300px;
+  background-color: #222;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 2px #333;
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+}
+.widget-section {
+  text-align: center;
+  width: 100%;
+}
+
+.widget-list-container h3 {
+  text-decoration: underline;
   margin-bottom: 1rem;
 }
-
-.edit-controls button {
-  background: #222;
-  border: 1px solid #555;
-  color: white;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
+.widget-section h4 {
+  margin-bottom: 0.5rem;
+  color: #bfbfbf;
+}
+.widget-section p {
+  margin: 5px 0;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+.widget-section p:hover {
+  color: #adff4f;
 }
 
-.edit-controls button:hover {
-  background: #333;
+
+.divider {
+  width: 100%;
+  border-bottom: 1px dashed #999;
+  margin: 1rem 0;
+}
+
+.active-widget {
+  color: #00e676;
+  font-weight: bold;
+}
+.submit-btn {
+  display: block;
+  margin: 2rem auto 0 auto;
+  background-color: #00e676;
+  border: none;
+  color: black;
+  font-weight: bold;
+  padding: 10px 25px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.submit-btn:hover {
+  background-color: lime;
+}
+
+
+/* --- resize handle widget --- */
+.react-resizable-handle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 255, 132, 0.4); 
+  border-radius: 3px;
+  bottom: 6px;
+  right: 6px;
+  cursor: se-resize;
+  transition: background 0.2s, transform 0.1s ease-in-out;
+}
+.react-resizable-handle:hover {
+  background: #00e676;          
+  transform: scale(1.1);        
 }
