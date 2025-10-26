@@ -16,16 +16,17 @@
   color: white;
   border-radius: 12px;
   display: flex;
-  flex-direction: column;       
-  justify-content: space-between;
-  overflow-y: hidden;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden; /* respect layout height */
   box-shadow: 0 2px 5px rgba(0,0,0,0.25);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
-  padding: 0 1rem 0 1rem;
+  padding: 0 1rem;
   box-sizing: border-box;
   width: 100%;
-  min-height: 100%;
+  height: 100%; /* takes height from GridLayout */
 }
+
 
 .widget:hover {
   transform: translateY(-3px);
@@ -58,14 +59,23 @@
 
 /* -- Resize -- */
 .widget.expanded {
+  display: flex !important;
+  flex-direction: column;
   position: fixed !important;
   top: 10vh;
   left: 5vw;
   width: 90vw;
-  height: 70vh;
+  max-height: 80vh; 
   background-color: #111;
   z-index: 9999;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  overflow: hidden; 
+  padding: 1.5rem;
+}
+
+@keyframes growIn {
+  from { transform: scale(0.97); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .widget-backdrop {
@@ -73,6 +83,12 @@
   inset: 0;
   background: rgba(0,0,0,0.5);
   z-index: 9998;
+}
+.widget-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 0;
 }
 
 
@@ -130,7 +146,7 @@
 /* -- Upcoming bills -- */
 .bills-table-container {
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 60vh;
 }
 
 table {

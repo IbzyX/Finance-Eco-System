@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { showSuccess } from "../utils/toast";
 
@@ -9,14 +10,27 @@ export default function Navbar() {
     const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
     const [hasShownLoginToast, setHasShownLoginToast] = useState(false);
 
-
     //login alert
     useEffect(() => {
+        const hasShownLoginToast = sessionStorage.getItem("hasShownLoginToast");
+
         if(isAuthenticated && !hasShownLoginToast) {
             showSuccess(`Welcome back,${user?.name || "User"}!`)
             setHasShownLoginToast(true);
+
+            sessionStorage.setItem("hasShownLoginToast", "true");
         }
-    }, [isAuthenticated, hasShownLoginToast, user]);
+    }, [isAuthenticated, user]);
+    //success messages
+    const location = useLocation();
+
+    useEffect(() => {
+    const layoutSaved = sessionStorage.getItem("layoutSaved");
+    if (layoutSaved) {
+        showSuccess("Layout Saved!");
+        sessionStorage.removeItem("layoutSaved");
+    }
+    }, [location.pathname]);
 
 
     
@@ -229,7 +243,11 @@ export default function Navbar() {
 
 
                             <button 
-                                onClick={() => logout({ returnTo: window.location.origin })} 
+                                
+                                onClick={() => {
+                                    sessionStorage.removeItem("hasShownLoginToast");
+                                    logout({ returnTo: window.location.origin });
+                                }}
                                 style={{
                                     fontSize: "1.5rem",
                                     background: "none",

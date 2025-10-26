@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import GridLayout from "react-grid-layout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate } from "react-router-dom";
@@ -45,8 +46,10 @@ export default function DashboardEdit() {
 
     const handleSaveLayout = () => {
         localStorage.setItem("dashboardLayout", JSON.stringify(layout));
-        alert("Layout saved!");
+        sessionStorage.setItem("layoutSaved", "true");
+        navigate("/dashboard");
     };
+
 
 
     if (isLoading) return <div>Loading...</div>;
@@ -149,7 +152,8 @@ export default function DashboardEdit() {
                 ))}
             </div>
 
-            <button className="submit-btn" onClick={handleSaveLayout}>Submit</button>
+            <Link to="/dashboard" className="submit-btn" onClick={handleSaveLayout}>Submit</Link>
+           
         </div>
     </div>
   );

@@ -10,6 +10,12 @@ export default function UpcomingBillsWidget() {
       { name: "Electricity", date: "2025-10-28", amount: 75 },
       { name: "Internet", date: "2025-11-01", amount: 40 },
       { name: "Water", date: "2025-10-30", amount: 30 },
+      { name: "Electricity", date: "2025-10-28", amount: 75 },
+      { name: "Internet", date: "2025-11-01", amount: 40 },
+      { name: "Water", date: "2025-10-30", amount: 30 },
+      { name: "Electricity", date: "2025-10-28", amount: 75 },
+      { name: "Internet", date: "2025-11-01", amount: 40 },
+      { name: "Water", date: "2025-10-30", amount: 30 },
     ];
 
     const today = new Date();
