@@ -26,10 +26,10 @@ html, body {
 .content-area {
     position: absolute;
     background-color: #2b2b2b;
-    width: 1000px;
+    width: 110vh;
     height: 75vh;
     top: 16%;
-    right: 16rem;
+    right: 14rem;
     border-radius: 1.5rem;
     overflow-y: auto;
 }

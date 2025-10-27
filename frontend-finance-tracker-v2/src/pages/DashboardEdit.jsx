@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import GridLayout from "react-grid-layout";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Navigate } from "react-router-dom";
 import { defaultLayout } from "../utils/defaultLayout";
 
 import Widget from "../components/widgets/Widgets";
@@ -96,7 +95,7 @@ export default function DashboardEdit() {
 
         {/* === SIDEBAR === */}
         <div className="widget-list-container">
-            <h3><em>Widgets</em></h3>
+            <h3><em>Edit Widgets</em></h3>
 
             <div className="widget-section">
             <h4>Small</h4>
