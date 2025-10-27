@@ -34,6 +34,22 @@ export default function Navbar() {
 
 
     
+    //truelayer check
+    const [isTrueLayerConnected, setIsTrueLayerConnected] = useState(() => {
+        return localStorage.getItem("truelayer_connected") === "true";
+    });
+    useEffect(() => {
+        const checkConnection = () => {
+            setIsTrueLayerConnected(localStorage.getItem("truelayer_connected") === "true");
+        };
+        window.addEventListener("storage", checkConnection);
+        return () => window.removeEventListener("storage", checkConnection);
+    }, []);
+
+
+
+
+    
     /* -- Dropdown -- */
     const [isHovered, setIsHovered] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
@@ -127,6 +143,19 @@ export default function Navbar() {
                     >
                     Dashboard
                 </NavLink>
+
+                {!isTrueLayerConnected && (
+                    <NavLink
+                        to="/entry"
+                        style={({ isActive }) => ({
+                        ...navLinkStyle,
+                        color: isActive ? "#00e676" : "white",
+                        borderBottom: isActive ? "2px solid #00e676" : "none",
+                        })}
+                    >
+                        Entry Form
+                    </NavLink>
+                )}
 
                 
                 {/* -- Dropdown Btn -- */}
@@ -330,7 +359,7 @@ const dropdownStyle = {
     border: "2px solid #b4b4b4ff",
     borderRadius: "10px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-    zIndex: 10,
+    zIndex: 50,
     minWidth: "150px",
 };
 

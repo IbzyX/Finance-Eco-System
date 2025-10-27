@@ -9,6 +9,7 @@ import DashbaordEdit from "./pages/DashboardEdit.jsx";
 import Settings from "./pages/Settings.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
+import Entry from "./pages/EntryForm.jsx";
 
 import "./index.css";
 
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/dashboardEdit", element: <DashbaordEdit /> },
+      { path: "/entry", element:< Entry /> },
       { path: "/settings", element: <Settings /> },
     ],
   },
