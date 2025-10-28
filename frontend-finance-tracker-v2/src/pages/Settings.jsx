@@ -13,6 +13,7 @@ import Themes from "../components/settings/Themes";
 export default function Settings() {
   const { isAuthenticated, isLoading, logout } = useAuth0();
   const [activeTab, setActiveTab] = useState("profile");
+  const [isHovered, setHovered] = useState(false);
 
   const renderContent = () => {
     switch(activeTab) {
@@ -51,17 +52,14 @@ export default function Settings() {
 
 
             <button
-              className="sidebar-btn"
-              style={activeTab === "profile" ? activeButtonStyle : buttonStyle}
-              onClick={() => setActiveTab("profile")}
-            >
+              className={`sidebar-btn ${activeTab === "profile" ? "active" : ""}`}
+              onClick={() => setActiveTab("profile")}>
               Manage Profile
             </button>
+
             <button
-              className="sidebar-btn"
-              style={activeTab === "input" ? activeButtonStyle : buttonStyle}
-              onClick={() => setActiveTab("input")}
-            >
+              className={`sidebar-btn ${activeTab === "input" ? "active" : ""}`}
+              onClick={() => setActiveTab("input")}>
               Input Type
             </button>
             <div className="divider"></div>
@@ -69,7 +67,7 @@ export default function Settings() {
 
 
             <h2>Links</h2>
-            <Link to="" className="logout">
+            <Link to="" className="sidebar-btn logout">
               Stock News Feed
             </Link>
             <div className="divider"></div>
@@ -78,23 +76,20 @@ export default function Settings() {
 
             <h2>General</h2>
             <button
-              className="sidebar-btn"
-              style={activeTab === "themes" ? activeButtonStyle : buttonStyle}
-              onClick={() => setActiveTab("themes")}
-            >
+              className={`sidebar-btn ${activeTab === "themes" ? "active" : ""}`}
+              onClick={() => setActiveTab("themes")}>
               Theme
             </button>
+            
             <button
-              className="sidebar-btn"
-              style={activeTab === "chatbotHistory" ? activeButtonStyle : buttonStyle}
-              onClick={() => setActiveTab("chatbotHistory")}
-            >
+              className={`sidebar-btn ${activeTab === "chatbotHistory" ? "active" : ""}`}
+              onClick={() => setActiveTab("chatbotHistory")}>
               AI Chatbot History
             </button>
+
             <button
               onClick={() => logout({ returnTo: window.location.origin })}
-              className="logout"
-            >
+              className="sidebar-btn logout">
               Logout
             </button>
           </aside>
