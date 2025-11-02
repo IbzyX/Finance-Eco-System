@@ -17,12 +17,6 @@ export default function Entry() {
         window.dispatchEvent(new Event("storage"));
     };
 
-    const handleConnect = () => {
-        localStorage.setItem("truelayer_connected", "true");
-        setIsTrueLayerConnected(true);
-        
-        window.dispatchEvent(new Event("storage"));
-    };
 
 
     return (
@@ -44,9 +38,21 @@ export default function Entry() {
             ) : (
                 <form className="entry-form">
                     
-
-
-                    <button onClick={handleConnect}>Simulate Connect</button>
+                    <p style={{color: "white"}}>Your account is not connected. You must link TrueLayer to enable auto imports.</p>
+                    <a 
+                        href={`${import.meta.env.VITE_API_URL}/api/truelayer/connect`}
+                        style={{
+                            background: "#00e676",
+                            color: "black",
+                            padding: "10px 20px",
+                            borderRadius: "10px",
+                            textDecoration: "none",
+                            fontSize: "1.2rem",
+                            fontWeight:"bold"
+                        }}
+                    >
+                        Connect with TrueLayer
+                    </a>
                 </form>
             )}
         </section>

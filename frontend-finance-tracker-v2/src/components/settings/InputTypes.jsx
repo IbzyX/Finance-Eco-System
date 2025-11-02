@@ -1,12 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
-
-export default function inputType () {
-
+export default function InputType() {
     const [hoveredItem, setHoveredItem] = useState(null);
+    const { getAccessTokenSilently } = useAuth0();
 
+    const connectBank = async () => {
+    try {
+        const token = await getAccessTokenSilently();
+
+        const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/truelayer/connect`,
+        {
+            headers: { Authorization: `Bearer ${token}` },
+        }
+        );
+
+        const data = await res.json();
+
+        console.log("TrueLayer URL:", data); // 
+
+        if (data.url) {
+        window.location.href = data.url;
+        } else {
+        alert(" TrueLayer URL missing");
+        console.error("No URL returned:", data);
+        }
+    } catch (err) {
+        console.error("Connect error:", err);
+        alert(" Could not start TrueLayer connection");
+    }
+    };
 
     return (
         <div> 
@@ -87,10 +113,12 @@ export default function inputType () {
                         Connects accounts to automatically update real-time
                     </p>
 
-                    <Link to="/entry" 
+                    <button
                         style={{
                             display: "block",
                             backgroundColor: hoveredItem === "truelayer" ? "lime" : "#00e676",
+                            color: "white",
+                            fontWeight: "bold",
                             textDecoration: "underline",
                             borderRadius: "10px",
                             border: "2px solid black",
@@ -98,11 +126,12 @@ export default function inputType () {
                             fontSize: "1.5rem",
                             padding: "10px 15px",
                         }}
+                        onClick={connectBank} 
                         onMouseEnter={() => setHoveredItem("truelayer")}
                         onMouseLeave={() => setHoveredItem(false)}
                     >
                         TrueLayer Link
-                    </Link>
+                    </button>
                     <div style={{display:"flex", alignItems:"center", gap: "0.5rem"}}>
                         <AiOutlineInfoCircle style={{color: "#555", fontSize:"1.5rem"}} />
                         <span style={{color:"#555", margin: "1rem 0 1rem 0"}}> TrueLayer API is FCA authorized </span> 
