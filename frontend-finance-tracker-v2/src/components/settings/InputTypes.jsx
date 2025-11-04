@@ -7,32 +7,29 @@ export default function InputType() {
     const [hoveredItem, setHoveredItem] = useState(null);
     const { getAccessTokenSilently } = useAuth0();
 
+
+
     const connectBank = async () => {
     try {
         const token = await getAccessTokenSilently();
 
-        const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/truelayer/connect`,
-        {
-            headers: { Authorization: `Bearer ${token}` },
-        }
-        );
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/truelayer/connect`, {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
+        });
 
-        const data = await res.json();
-
-        console.log("TrueLayer URL:", data); // 
-
-        if (data.url) {
-        window.location.href = data.url;
-        } else {
-        alert(" TrueLayer URL missing");
-        console.error("No URL returned:", data);
-        }
+        const url = await res.text();
+        if (url.startsWith("https://")) window.location.href = url;
+        else alert("Could not start TrueLayer connection");
     } catch (err) {
-        console.error("Connect error:", err);
-        alert(" Could not start TrueLayer connection");
+        console.error(err);
+        alert("Could not start TrueLayer connection");
     }
     };
+
+
+
+
 
     return (
         <div> 

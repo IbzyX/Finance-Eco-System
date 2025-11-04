@@ -25,16 +25,18 @@ const {
 
 // Redirect to TrueLayer login
 router.get("/truelayer/connect", checkJwt, (req, res) => {
-  console.log("👉 TrueLayer connect hit");
-
   const url =
-    `https://auth.truelayer.com/?response_type=code` +
+    `https://auth.truelayer-sandbox.com/?response_type=code` +
     `&client_id=${TRUELAYER_CLIENT_ID}` +
     `&redirect_uri=${encodeURIComponent(TRUELAYER_REDIRECT_URI)}` +
-    `&scope=info%20accounts%20balance%20transactions`;
+    `&scope=accounts%20balance%20transactions%20info`;
 
-  return res.json({ url });
+  res.send(url);
 });
+
+
+
+
 
 
 // Exchange code for token
@@ -43,7 +45,7 @@ router.post("/truelayer/exchange", checkJwt, async (req, res) => {
   const userId = req.auth.sub;
 
   try {
-    const response = await axios.post("https://auth.truelayer.com/connect/token", {
+    const response = await axios.post("https://auth.truelayer-sandbox.com/connect/token", {
       grant_type: "authorization_code",
       client_id: TRUELAYER_CLIENT_ID,
       client_secret: TRUELAYER_CLIENT_SECRET,
@@ -54,7 +56,7 @@ router.post("/truelayer/exchange", checkJwt, async (req, res) => {
     userTokens[userId] = response.data.access_token;
     res.json({ success: true });
   } catch (err) {
-    console.log("❌ TL exchange error:", err.response?.data);
+    console.log(" TL exchange error:", err.response?.data);
     res.status(500).json({ error: "OAuth failed" });
   }
 });
@@ -74,7 +76,7 @@ router.get("/truelayer/accounts", checkJwt, async (req, res) => {
 
     res.json(response.data);
   } catch (err) {
-    console.log("❌ Fetch error:", err.response?.data);
+    console.log(" Fetch error:", err.response?.data);
     res.status(500).json({ error: "Could not fetch accounts" });
   }
 });
