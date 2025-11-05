@@ -1,3 +1,8 @@
+h2 {
+  text-decoration: underline;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
 .entry-page {
   position: relative;
   padding: 2rem;
@@ -6,30 +11,21 @@
   min-height: calc(100vh - 125px);
 }
 
-.entry-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 300px;
+.entry-sidebar {
+    position: absolute;
+    background-color: #1c1c1c;
+    width: 350px;
+    height: 60vh;
+    top: 19%;
+    left: 16rem;
+    border-radius: 1.5rem;
+    align-items: center;
+    justify-items: center;
 }
 
-.entry-form input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #555;
-  background-color: #222;
-  color: white;
-}
 
-.entry-form button {
-  background-color: #00e676;
-  color: black;
-  border: none;
-  padding: 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
+
+
 
 /* === Overlay for TrueLayer-connected users === */
 .blocker-overlay {

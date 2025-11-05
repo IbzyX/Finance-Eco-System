@@ -71,7 +71,8 @@ export default function InputType() {
                         <Link to="/entry" 
                             style={{
                                 display: "block",
-                                backgroundColor: hoveredItem === "entry" ? "lime" : "#00e676",
+                                backgroundColor: hoveredItem === "entry" ? "#00e676" : "#c1ff72",
+                                color: "black",
                                 textDecoration: "none",
                                 borderRadius: "10px",
                                 border: "2px solid black",
@@ -113,8 +114,8 @@ export default function InputType() {
                     <button
                         style={{
                             display: "block",
-                            backgroundColor: hoveredItem === "truelayer" ? "lime" : "#00e676",
-                            color: "white",
+                            backgroundColor: hoveredItem === "truelayer" ? "#00e676" : "#c1ff72",
+                            color: "black",
                             fontWeight: "bold",
                             textDecoration: "underline",
                             borderRadius: "10px",
