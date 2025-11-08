@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./Widget.css";
 
@@ -12,12 +12,18 @@ export default function Widget({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState(title);
+  const [currentChild, setCurrentChild] = useState(children);
+
+  useEffect(() => {
+    setCurrentChild(children);
+  }, [children]);
 
   const handleExpand = () => setExpanded(!expanded);
 
   const handleWidgetChange = (e) => {
-    setSelectedWidget(e.target.value);
-    if (onWidgetChange) onWidgetChange(e.target.value);
+    const newValue = e.target.value;
+    setSelectedWidget(newValue);
+    if (onWidgetChange) onWidgetChange(newValue);
   };
 
   const widgetContent = (
@@ -50,10 +56,17 @@ export default function Widget({
                 value={selectedWidget}
                 onChange={handleWidgetChange}
               >
+                <option value="Total Pie">Total Pie</option>
+                <option value="Investments">Investments</option>
+                <option value="Savings">Savings</option>
+                <option value="Accounts">Accounts</option>
                 <option value="Upcoming Bills">Upcoming Bills</option>
                 <option value="Cashflow Chart">Cashflow Chart</option>
                 <option value="Habits">Habits</option>
                 <option value="Debt">Debt</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+                <option value="Savings projection">Savings Projection</option>
               </select>
             )}
 
@@ -66,7 +79,7 @@ export default function Widget({
         </div>
 
         {!isEditing ? (
-          <div className="widget-content">{children}</div>
+          <div className="widget-content">{currentChild}</div>
         ) : (
           <div className="widget-edit-placeholder">
             <p>Drag or remove this widget</p>

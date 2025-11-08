@@ -10,19 +10,18 @@ import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-
 export default function Dashboard() {
   const { isAuthenticated, isLoading } = useAuth0();
+  const [gridWidth, setGridWidth] = useState(window.innerWidth - 60);
+  const [widgetTypes, setWidgetTypes] = useState({});
 
-  
-  const [gridWidth, setGridWidth] = useState(window.innerWidth - 60); 
+
 
   useEffect(() => {
-  const handleResize = () => setGridWidth(window.innerWidth - 60);
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
+    const handleResize = () => setGridWidth(window.innerWidth - 60);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
 
   if (isLoading) return <div>Loading...</div>;
   if (!isAuthenticated) return <Navigate to="/" />;
@@ -30,58 +29,106 @@ export default function Dashboard() {
   const savedLayout = JSON.parse(localStorage.getItem("dashboardLayout"));
   const layout = savedLayout || defaultLayout;
 
+  const handleWidgetChange = (id, newType) => {
+    setWidgetTypes((prev) => ({ ...prev, [id]: newType }));
+  };
+
+
+  
   const renderWidget = (id, size) => {
-    switch (id) {
+    const type = widgetTypes[id] || id; 
+
+    switch (type) {
       case "Upcoming Bills":
-      return (
-        <Widget title="Upcoming Bills" size={size}>
-          <UpcomingBill />
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Upcoming Bills"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)} 
+          >
+            <UpcomingBill />
+          </Widget>
+        );
       case "Total Pie":
-      return (
-        <Widget title="Total Pie" size={size}>
-          <p>Total Pie chart placeholder</p>
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Total Pie"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Total Pie chart placeholder</p>
+          </Widget>
+        );
       case "Accounts":
-      return (
-        <Widget title="Accounts" size={size}>
-          <p>cards and accounts placeholder</p>
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Accounts"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Cards and accounts placeholder</p>
+          </Widget>
+        );
       case "Savings":
-      return (
-        <Widget title="Savings" size={size}>
-          <p>savings placeholder</p>
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Savings"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Savings placeholder</p>
+          </Widget>
+        );
       case "Cashflow Chart":
-      return (
-        <Widget title="Cashflow Chart" size={size}>
-          <p>CashFlow chart placeholder</p>
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Cashflow Chart"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>CashFlow chart placeholder</p>
+          </Widget>
+        );
       case "Investments":
-      return (
-        <Widget title="Investments" size={size}>
-          <p>Investments chart placeholder</p>
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Investments"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Investments chart placeholder</p>
+          </Widget>
+        );
       case "Savings Projection":
-      return (
-        <Widget title="Savings Projection" size={size}>
-          <p>Savings chart placeholder</p>
-        </Widget>
-      );
+        return (
+          <Widget
+            title="Savings Projection"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Savings chart placeholder</p>
+          </Widget>
+        );
       case "Habits":
-      return (
-        <Widget title="Habits" size={size}>
-          <p>Habits placeholder</p>
-        </Widget>
-      );
-      default: 
-      return null;
+        return (
+          <Widget
+            title="Habits"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Habits placeholder</p>
+          </Widget>
+        );
+      default:
+        return (
+          <Widget
+            title={id}
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Widget not found</p>
+          </Widget>
+        );
     }
   };
 
