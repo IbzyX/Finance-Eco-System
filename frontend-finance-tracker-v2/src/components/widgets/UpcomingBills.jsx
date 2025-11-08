@@ -5,62 +5,80 @@ export default function UpcomingBillsWidget() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    console.log("Loading bills from localStorage...");
+    const savedBills = localStorage.getItem("bills");
 
-    const storedBills = JSON.parse(localStorage.getItem("bills")) || [
-      { name: "Electricity", date: "2025-10-28", amount: 75 },
-      { name: "Internet", date: "2025-11-01", amount: 40 },
-      { name: "Water", date: "2025-10-30", amount: 30 },
-      { name: "Electricity", date: "2025-10-28", amount: 75 },
-      { name: "Internet", date: "2025-11-01", amount: 40 },
-      { name: "Water", date: "2025-10-30", amount: 30 },
-      { name: "Electricity", date: "2025-10-28", amount: 75 },
-      { name: "Internet", date: "2025-11-01", amount: 40 },
-      { name: "Water", date: "2025-10-30", amount: 30 },
-    ];
+    if (!savedBills) {
+      console.warn(" No saved bills found in localStorage.");
+      setBills([]);
+      setTotal(0);
+      return;
+    }
 
-    const today = new Date();
-    const thirtyDays = new Date();
-    thirtyDays.setDate(today.getDate() + 30);
+    try {
+      // Parse and sanitize stored data
+      const parsedBills = JSON.parse(savedBills).map((b) => ({
+        name: b.name || "Unnamed Bill",
+        amount: Number(b.amount) || 0,
+        date: b.date || "",
+        type: b.type || "N/A",
+      }));
 
-    const upcomingBills = storedBills
-      .map((bill) => {
-        let billDate = new Date(bill.date);
-        while (billDate < today) billDate.setMonth(billDate.getMonth() + 1);
-        return { ...bill, date: billDate.toISOString().split("T")[0] };
-      })
-      .filter((bill) => {
-        const billDate = new Date(bill.date);
-        return billDate >= today && billDate <= thirtyDays;
-      })
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+      const today = new Date();
+      const thirtyDays = new Date();
+      thirtyDays.setDate(today.getDate() + 30);
 
-    setBills(upcomingBills);
-    setTotal(upcomingBills.reduce((sum, b) => sum + b.amount, 0));
-  }, []);
+      // Only include bills due within 30 days
+      const upcomingBills = parsedBills
+        .filter((b) => {
+          const billDate = new Date(b.date);
+          return billDate >= today && billDate <= thirtyDays;
+        })
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      setBills(upcomingBills);
+      setTotal(upcomingBills.reduce((sum, b) => sum + Number(b.amount || 0), 0));
+    } catch (err) {
+      console.error(" Failed to parse bills:", err);
+      setBills([]);
+      setTotal(0);
+    }
+  }, []); // Only run on mount
 
   return (
     <div>
-      <p>Total bills due in 30 days: £{total.toFixed(2)}</p>
-      <div className="bills-table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Bill</th>
-              <th>Due Date</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bills.map((bill, i) => (
-              <tr key={i}>
-                <td>{bill.name}</td>
-                <td>{bill.date}</td>
-                <td>£{bill.amount.toFixed(2)}</td>
+      <h3>Upcoming Bills</h3>
+      <p>
+        Total bills due in 30 days:{" "}
+        <strong>£{Number(total || 0).toFixed(2)}</strong>
+      </p>
+
+      {bills.length === 0 ? (
+        <p style={{ color: "#aaa" }}>No upcoming bills found.</p>
+      ) : (
+        <div className="bills-table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Bill</th>
+                <th>Due Date</th>
+                <th>Amount</th>
+                <th>Type</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {bills.map((bill, i) => (
+                <tr key={i}>
+                  <td>{bill.name}</td>
+                  <td>{bill.date}</td>
+                  <td>£{Number(bill.amount).toFixed(2)}</td>
+                  <td>{bill.type}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

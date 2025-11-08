@@ -20,6 +20,7 @@ export const showWarning = (msg) =>
     toast.warn(msg, {
         position: "top-right",
         autoClose: 3000,
+        style: { color: "black"},
         theme: "colored",
     });
 

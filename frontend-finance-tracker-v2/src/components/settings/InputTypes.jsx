@@ -19,7 +19,7 @@ export default function InputType() {
 
         const url = await res.text();
 
-        window.location.href = url; // ✅ Redirect properly
+        window.location.href = url; 
     } catch (err) {
         console.error("TL connect error:", err);
         alert("Failed to launch TrueLayer");

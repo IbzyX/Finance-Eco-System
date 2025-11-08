@@ -1,16 +1,224 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { showSuccess, showWarning } from "../../utils/toast";
 
-export default function EntryBills () {
+export default function EntryBills() {
+    const [bills, setBills] = useState([]);
+    const [newBill, setNewBill] = useState({ name: "", amount: "", date: "", type: "" });
+    const [hasLoaded, setHasLoaded] = useState(false);
+
+    // -- Load bills 
+    useEffect(() => {
+        const savedBills = localStorage.getItem("bills");
+        if (savedBills && savedBills !== "[]" && savedBills !== "null") {
+            setBills(JSON.parse(savedBills));
+        } 
+        else {
+            console.log("No saved bills found.");
+        }
+        setHasLoaded(true);
+    }, []);
+
+    // -- Save bills
+    useEffect(() => {
+        if (hasLoaded) {
+            localStorage.setItem("bills", JSON.stringify(bills));
+        }
+    }, [bills, hasLoaded]);
+
+    // -- Handle changes
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setNewBill((prev) => ({ ...prev, [name]: value }));
+    };
+
+    // -- Add a new bill
+    const addBill = () => {
+        if (
+            !newBill.name.trim() ||
+            !newBill.amount ||
+            !newBill.date ||
+            !newBill.type.trim()
+        ) {
+            showWarning("Please fill all fields before adding a bill.");
+            return;
+        }
+
+        const updated = [...bills, { ...newBill, amount: Number(newBill.amount) }];
+        setBills(updated);
+        localStorage.setItem("bills", JSON.stringify(updated));
+        showSuccess(`Bill "${newBill.name}" added successfully!`);
+
+        setNewBill({ name: "", amount: "", date: "", type: "" });
+    };
+
+    // -- Remove bill
+    const removeBill = (index) => {
+        const removedBill = bills[index];
+        const updated = bills.filter((_, i) => i !== index);
+        setBills(updated);
+        localStorage.setItem("bills", JSON.stringify(updated));
+
+        showSuccess(`Bill "${removedBill?.name || "Unknown"}" removed successfully!`);
+    };
 
     return (
-        <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1rem",
-            fontWeight: "bold",
-        }}>
-            <p>Entry Bills component</p>
+        <div
+            style={{
+                color: "white",
+                borderRadius: "15px",
+                padding: "2rem",
+                width: "100%",
+                maxWidth: "950px",
+                margin: "0 auto",
+            }}
+            >
+            <h2
+                style={{
+                textAlign: "center",
+                textDecoration: "underline",
+                marginBottom: "1.5rem",
+                }}
+            >
+                Bills
+            </h2>
+
+            {/* Input Row */}
+            <div
+                style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr 60px",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+                borderBottom: "2px solid #9cff66",
+                paddingBottom: "2rem",
+                }}
+            >
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    value={newBill.name}
+                    onChange={handleChange}
+                    style={inputStyle}
+                />
+
+                <input
+                    type="number"
+                    name="amount"
+                    placeholder="Amount"
+                    value={newBill.amount}
+                    onChange={handleChange}
+                    style={inputStyle}
+                />
+
+                <input
+                    type="date"
+                    name="date"
+                    value={newBill.date}
+                    onChange={handleChange}
+                    style={inputStyle}
+                />
+
+                <input
+                    type="text"
+                    name="type"
+                    placeholder="Type"
+                    value={newBill.type}
+                    onChange={handleChange}
+                    style={inputStyle}
+                />
+
+                <button
+                    onClick={addBill}
+                    style={buttonAddStyle}
+                    >
+                    <AiOutlinePlus />
+                </button>
+            </div>
+
+            {/* List */}
+            {bills.length > 0 ? (
+                <table style={tableStyle}>
+                    <thead>
+                        <tr style={{ color: "#9cff66" }}>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Type</th>
+                        <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {bills.map((bill, i) => (
+                        <tr key={i}>
+                            <td>{bill.name}</td>
+                            <td>£{Number(bill.amount).toFixed(2)}</td>
+                            <td>{bill.date}</td>
+                            <td>{bill.type}</td>
+                            <td>
+                            <button
+                                onClick={() => removeBill(i)}
+                                style={buttonRemoveStyle}
+                            >
+                                <AiOutlineMinus />
+                            </button>
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ) : (
+                <p style={{ textAlign: "center", color: "#888" }}>
+                    No bills added yet.
+                </p>
+            )}
         </div>
     );
 }
+
+
+const inputStyle = {
+    background: "transparent",
+    border: "none",
+    borderBottom: "none",
+    color: "white",
+    fontSize: "1rem",
+    textAlign: "center",
+    padding: "1rem",
+    outline: "none",
+};
+
+const tableStyle = {
+    width: "100%",
+    borderCollapse: "collapse",
+    textAlign: "center",
+    color: "white",
+};
+
+const buttonAddStyle = {
+    backgroundColor: "#9cff66",
+    border: "none",
+    borderRadius: "50%",
+    color: "#000",
+    fontSize: "1.5rem",
+    width: "40px",
+    height: "40px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+};
+
+const buttonRemoveStyle = {
+    backgroundColor: "#9cff66",
+    border: "none",
+    borderRadius: "50%",
+    color: "#000",
+    fontSize: "1.2rem",
+    width: "30px",
+    height: "30px",
+    cursor: "pointer",
+};
