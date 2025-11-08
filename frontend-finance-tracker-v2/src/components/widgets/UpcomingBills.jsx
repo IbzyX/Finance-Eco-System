@@ -16,38 +16,52 @@ export default function UpcomingBillsWidget() {
     }
 
     try {
-      // Parse and sanitize stored data
       const parsedBills = JSON.parse(savedBills).map((b) => ({
         name: b.name || "Unnamed Bill",
         amount: Number(b.amount) || 0,
         date: b.date || "",
         type: b.type || "N/A",
+        recurring: !!b.recurring,
       }));
 
       const today = new Date();
       const thirtyDays = new Date();
       thirtyDays.setDate(today.getDate() + 30);
 
-      // Only include bills due within 30 days
       const upcomingBills = parsedBills
-        .filter((b) => {
-          const billDate = new Date(b.date);
+        .map((bill) => {
+          let billDate = new Date(bill.date);
+
+          if (bill.recurring) {
+            while (billDate < today) {
+              billDate.setMonth(billDate.getMonth() + 1);
+            }
+          }
+
+          return { ...bill, date: billDate.toISOString().split("T")[0] };
+        })
+        .filter((bill) => {
+          const billDate = new Date(bill.date);
           return billDate >= today && billDate <= thirtyDays;
         })
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
       setBills(upcomingBills);
-      setTotal(upcomingBills.reduce((sum, b) => sum + Number(b.amount || 0), 0));
+
+      const totalAmount = upcomingBills.reduce(
+        (sum, b) => sum + Number(b.amount || 0),
+        0
+      );
+      setTotal(totalAmount);
     } catch (err) {
-      console.error(" Failed to parse bills:", err);
+      console.error("Failed to parse bills:", err);
       setBills([]);
       setTotal(0);
     }
-  }, []); // Only run on mount
+  }, []); 
 
   return (
     <div>
-      <h3>Upcoming Bills</h3>
       <p>
         Total bills due in 30 days:{" "}
         <strong>£{Number(total || 0).toFixed(2)}</strong>
@@ -64,6 +78,7 @@ export default function UpcomingBillsWidget() {
                 <th>Due Date</th>
                 <th>Amount</th>
                 <th>Type</th>
+                <th>Recurring</th>
               </tr>
             </thead>
             <tbody>
@@ -73,6 +88,7 @@ export default function UpcomingBillsWidget() {
                   <td>{bill.date}</td>
                   <td>£{Number(bill.amount).toFixed(2)}</td>
                   <td>{bill.type}</td>
+                  <td>{bill.recurring ? "Yes" : "No"}</td> 
                 </tr>
               ))}
             </tbody>

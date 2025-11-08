@@ -4,7 +4,7 @@ import { showSuccess, showWarning } from "../../utils/toast";
 
 export default function EntryBills() {
     const [bills, setBills] = useState([]);
-    const [newBill, setNewBill] = useState({ name: "", amount: "", date: "", type: "" });
+    const [newBill, setNewBill] = useState({ name: "", amount: "", date: "", recurring:"no", type: "" });
     const [hasLoaded, setHasLoaded] = useState(false);
 
     // -- Load bills 
@@ -44,12 +44,12 @@ export default function EntryBills() {
             return;
         }
 
-        const updated = [...bills, { ...newBill, amount: Number(newBill.amount) }];
+        const updated = [...bills, { ...newBill, amount: Number(newBill.amount), recurring: newBill.recurring == "yes", }];
         setBills(updated);
         localStorage.setItem("bills", JSON.stringify(updated));
         showSuccess(`Bill "${newBill.name}" added successfully!`);
 
-        setNewBill({ name: "", amount: "", date: "", type: "" });
+        setNewBill({ name: "", amount: "", date: "", type: "", recurring: "no", });
     };
 
     // -- Remove bill
@@ -67,7 +67,7 @@ export default function EntryBills() {
             style={{
                 color: "white",
                 borderRadius: "15px",
-                padding: "2rem",
+                padding: "",
                 width: "100%",
                 maxWidth: "950px",
                 margin: "0 auto",
@@ -87,9 +87,9 @@ export default function EntryBills() {
             <div
                 style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr 1fr 60px",
+                gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "1rem",
                 marginBottom: "1rem",
                 borderBottom: "2px solid #9cff66",
                 paddingBottom: "2rem",
@@ -128,9 +128,28 @@ export default function EntryBills() {
                     placeholder="Type"
                     value={newBill.type}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={{
+                        ...inputStyle,
+                        backgroundColor: "#2b2b2b",
+                        borderRadius: "5px",
+                        color: "white",
+                        textAlign: "center",
+                    }}  
                 />
-
+                <select 
+                    name="recurring"
+                    value={newBill.recurring}
+                    onChange={handleChange}
+                    style={{
+                        ...inputStyle,
+                        backgroundColor: "#2b2b2b",
+                        borderRadius: "5px",
+                        color: "white",
+                        textAlign: "center",
+                    }}                    >
+                        <option value="no">One-off</option>
+                        <option value="yes">Recurring</option>
+                    </select>
                 <button
                     onClick={addBill}
                     style={buttonAddStyle}
@@ -148,6 +167,7 @@ export default function EntryBills() {
                         <th>Amount</th>
                         <th>Due Date</th>
                         <th>Type</th>
+                        <th>Recurring</th>
                         <th></th>
                         </tr>
                     </thead>
@@ -158,6 +178,7 @@ export default function EntryBills() {
                             <td>£{Number(bill.amount).toFixed(2)}</td>
                             <td>{bill.date}</td>
                             <td>{bill.type}</td>
+                            <td>{bill.recurring ? "Yes" : "No"}</td>
                             <td>
                             <button
                                 onClick={() => removeBill(i)}
@@ -185,9 +206,9 @@ const inputStyle = {
     border: "none",
     borderBottom: "none",
     color: "white",
+    padding: "0.5rem 0 0.5rem 0",
     fontSize: "1rem",
     textAlign: "center",
-    padding: "1rem",
     outline: "none",
 };
 
