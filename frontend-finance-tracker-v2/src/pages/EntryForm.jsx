@@ -15,28 +15,25 @@ export default function Entry() {
     const [hoveredItem, setHoveredItem] = useState(null);
     
     const { getAccessTokenSilently } = useAuth0();
+
+
     const [isTrueLayerConnected, setIsTrueLayerConnected] = useState(false);
 
-
-
-    const connectBank = async () => {
-        try {
-            const token = await getAccessTokenSilently();
-
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/truelayer/connect`, {
-            headers: { Authorization: `Bearer ${token}` },
-            credentials: "include"
-            });
-
-            const url = await res.text();
-            if (url.startsWith("https://")) window.location.href = url;
-            else alert("Could not start TrueLayer connection");
-        } catch (err) {
-            console.error(err);
-            alert("Could not start TrueLayer connection");
-        }
-        return isTrueLayerConnected = true;
+    const handleConnect = () => {
+        localStorage.setItem("truelayer_connected", "true");
+        setIsTrueLayerConnected(true);
+        
+        window.dispatchEvent(new Event("storage"));
     };
+
+    const handleDisconnect = () => {
+        localStorage.removeItem("truelayer_connected");
+        setIsTrueLayerConnected(false);
+
+        window.dispatchEvent(new Event("storage"));
+    };
+
+
 
 
 
@@ -141,7 +138,8 @@ export default function Entry() {
                                     padding: "15px 20px",
                                     width: "100%",
                                 }}
-                                onClick={connectBank} 
+                                //onClick={connectBank} 
+                                onClick={handleConnect}
                                 onMouseEnter={() => setHoveredItem("truelayer")}
                                 onMouseLeave={() => setHoveredItem(false)}
                             >

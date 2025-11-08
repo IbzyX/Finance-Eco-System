@@ -14,17 +14,16 @@ export default function InputType() {
         const token = await getAccessTokenSilently();
 
         const res = await fetch(`${import.meta.env.VITE_API_URL}/truelayer/connect`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include"
+        headers: { Authorization: `Bearer ${token}` }
         });
 
         const url = await res.text();
-        if (url.startsWith("https://")) window.location.href = url;
-        else alert("Could not start TrueLayer connection");
+
+        window.location.href = url; // ✅ Redirect properly
     } catch (err) {
-        console.error(err);
-        alert("Could not start TrueLayer connection");
-    }
+        console.error("TL connect error:", err);
+        alert("Failed to launch TrueLayer");
+    } 
     };
 
 

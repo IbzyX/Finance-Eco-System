@@ -37,14 +37,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
     authorizationParams={{
       redirect_uri: window.location.origin,
-      audience: "https://finance-tracker-api/", 
+      audience: "https://finance-tracker-api/",
+      scope: "openid profile email offline_access"
     }}
     onRedirectCallback={(appState) => {
       const returnTo = appState?.returnTo || window.location.pathname;
       window.history.replaceState({}, document.title, returnTo);
     }}
-
-
 
 
     cacheLocation="localstorage"
