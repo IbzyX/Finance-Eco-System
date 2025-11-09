@@ -6,6 +6,8 @@ import GridLayout from "react-grid-layout";
 import { defaultLayout } from "../utils/defaultLayout";
 import Widget from "../components/widgets/Widgets";
 import UpcomingBill from "../components/widgets/UpcomingBills";
+import Savings from "../components/widgets/Savings";
+
 import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -76,7 +78,7 @@ export default function Dashboard() {
             size={size}
             onWidgetChange={(newType) => handleWidgetChange(id, newType)}
           >
-            <p>Savings placeholder</p>
+            <Savings />
           </Widget>
         );
       case "Cashflow Chart":
