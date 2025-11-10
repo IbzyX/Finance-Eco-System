@@ -10,6 +10,7 @@ import Settings from "./pages/Settings.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Entry from "./pages/EntryForm.jsx";
+import Hybrid from "./pages/HybridInput.jsx";
 import TrueLayerCallback from "./pages/TrueLayerCallback.jsx";
 
 import "./index.css";
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/dashboardEdit", element: <DashbaordEdit /> },
       { path: "/entry", element:< Entry /> },
+      { path: "/hybrid", element:< Hybrid /> },
       { path: "/settings", element: <Settings /> },
       { path: "/truelayer/callback", element: <TrueLayerCallback /> },
     ],

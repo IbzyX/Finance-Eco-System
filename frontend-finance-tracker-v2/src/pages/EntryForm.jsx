@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Link } from "react-router-dom";
 
 import "./css/EntryForm.css";
 import EntryIncome from "../components/Entry/EntryIncome";
@@ -133,7 +134,6 @@ export default function Entry() {
                                     textDecoration: "underline",
                                     borderRadius: "20px",
                                     border: "2px solid black",
-                                    margin: "1rem",
                                     fontSize: "1.5rem",
                                     padding: "15px 20px",
                                     width: "100%",
@@ -143,8 +143,29 @@ export default function Entry() {
                                 onMouseEnter={() => setHoveredItem("truelayer")}
                                 onMouseLeave={() => setHoveredItem(false)}
                             >
-                                TrueLayer Link
+                                Simulate TrueLayer 
                             </button>
+
+                            <Link to="/hybrid" 
+                            style={{
+                                display: "block",
+                                    backgroundColor: hoveredItem === "hybrid" ?  "#00e676" : "#c1ff72" ,
+                                    color: "Black",
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                    textDecoration: "underline",
+                                    borderRadius: "20px",
+                                    border: "2px solid black",
+                                    margin: "0.5rem",
+                                    fontSize: "1.5rem",
+                                    padding: "12px 22px",
+                                    width: "85%",
+                            }}
+                            onMouseEnter={() => setHoveredItem("hybrid")}
+                            onMouseLeave={() => setHoveredItem(false)}
+                        >
+                            Switch to Hybrid
+                        </Link>
 
                         </aside>
 

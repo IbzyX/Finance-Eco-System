@@ -34,7 +34,7 @@ export default function InputType() {
         <div> 
             <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "repeat(3, 1fr)",
             width: "100%",
             marginTop: "6rem",
             height: "100%",
@@ -53,7 +53,7 @@ export default function InputType() {
                         width: "80%",
                         alignItems: "center",
                         justifyContent: "center",
-                        margin: "3rem 0 3rem 3rem"
+                        margin: "3rem 2rem 3rem 2rem"
 
                     }}>
                         <h2 style={{color:"black", textDecoration: "underline", fontSize:"1.5rem"}}>Manual</h2>
@@ -88,6 +88,52 @@ export default function InputType() {
                     </div>
                 </div>
 
+                <div style={{borderRight:"3px solid #666"}}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        backgroundColor: "#cbcbcb",
+                        borderRadius: "10px",
+                        padding: "0 0 3rem 0",
+                        width: "80%",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "3rem 2rem 3rem 2rem"
+
+                    }}>
+                        <h2 style={{color:"black", textDecoration: "underline", fontSize:"1.5rem"}}>Hybrid</h2>
+                        <p style={{
+                            display: "flex",
+                            textAlign: "center",
+                            margin: "1rem",
+                            fontSize: "1rem", 
+                            color: "#555", 
+                        }}>
+                            Upload your bank statement to speed up input process
+                        </p>
+
+                        <Link to="/hybrid" 
+                            style={{
+                                display: "block",
+                                backgroundColor: hoveredItem === "hybrid" ? "#00e676" : "#c1ff72",
+                                color: "black",
+                                textDecoration: "none",
+                                borderRadius: "10px",
+                                border: "2px solid black",
+                                margin: "2rem",
+                                fontSize: "1.5rem",
+                                padding: "10px 15px",
+                            }}
+                            onMouseEnter={() => setHoveredItem("hybrid")}
+                            onMouseLeave={() => setHoveredItem(false)}
+                        >
+                            Hybrid
+                        </Link>
+                        
+                    </div>
+                </div>
+
+
 
                 <div style={{
                     display: "flex",
@@ -97,7 +143,7 @@ export default function InputType() {
                     width: "80%",
                     alignItems: "center",
                     justifyContent: "center",
-                    marginLeft: "3rem",
+                    marginLeft: "2rem",
                 }}>
                     <h2 style={{color:"black", textDecoration: "underline", fontSize:"1.5rem"}}>Auto</h2>
                     <p style={{
