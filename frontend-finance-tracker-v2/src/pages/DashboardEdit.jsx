@@ -6,6 +6,9 @@ import { defaultLayout } from "../utils/defaultLayout";
 
 import Widget from "../components/widgets/Widgets";
 import UpcomingBill from "../components/widgets/UpcomingBills";
+import Savings from "../components/widgets/Savings";
+import CashFlow from "../components/widgets/CashFlow";
+
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -31,13 +34,17 @@ export default function DashboardEdit() {
     // Define all widgets
     const allWidgets = [
         { id: "Total Pie", size: "large", component: <p>Total Pie chart placeholder</p> },
-        { id: "Upcoming Bills", size: "medium", component: <UpcomingBill /> },
-        { id: "Accounts", size: "medium", component: <p>Accounts placeholder</p> },
-        { id: "Savings", size: "small", component: <p>Savings placeholder</p> },
-        { id: "Cashflow Chart", size: "medium", component: <p>Cashflow placeholder</p> },
         { id: "Investments", size: "large", component: <p>Investments placeholder</p> },
         { id: "Savings Projection", size: "large", component: <p>Savings chart placeholder</p> },
+
+
+        { id: "Upcoming Bills", size: "medium", component: <UpcomingBill /> },
+        { id: "Accounts", size: "medium", component: <p>Accounts placeholder</p> },
+        { id: "Cashflow Chart", size: "medium", component: <p>Cashflow placeholder</p> },
+        { id: "CashFlow", size: "medium", component: <CashFlow /> },
         { id: "Habits", size: "medium", component: <p>Habits placeholder</p> },
+
+        { id: "Savings", size: "small", component: <Savings /> },
     ];
 
     // Track active widgets separately
@@ -108,7 +115,7 @@ export default function DashboardEdit() {
 
             <div className="widget-section">
                 <h4>Medium</h4>
-                {["Upcoming Bills", "Cashflow Chart", "Habits", "Debt", "Accounts"].map((w) => (
+                {["Upcoming Bills", "Cashflow Chart", "CashFlow", "Habits", "Debt", "Accounts"].map((w) => (
                     <p
                         key={w}
                         className={activeWidgets.includes(w) ? "active-widget" : "inactive-widget"}

@@ -128,7 +128,7 @@ export default function Entry() {
                             <button
                                 style={{
                                     display: "block",
-                                    backgroundColor: hoveredItem === "truelayer" ?  "#00e676" : "#c1ff72" ,
+                                    backgroundColor: hoveredItem === "truelayer" ?  "#e600adff" : "#ff72c7ff" ,
                                     color: "Black",
                                     fontWeight: "bold",
                                     textDecoration: "underline",

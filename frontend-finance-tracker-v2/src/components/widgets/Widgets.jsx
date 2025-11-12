@@ -62,6 +62,7 @@ export default function Widget({
                 <option value="Accounts">Accounts</option>
                 <option value="Upcoming Bills">Upcoming Bills</option>
                 <option value="Cashflow Chart">Cashflow Chart</option>
+                <option value="CashFlow">CashFlow</option>
                 <option value="Habits">Habits</option>
                 <option value="Debt">Debt</option>
                 <option value="Income">Income</option>
@@ -79,7 +80,11 @@ export default function Widget({
         </div>
 
         {!isEditing ? (
-          <div className="widget-content">{currentChild}</div>
+          <div className="widget-content">
+            {React.isValidElement(currentChild)
+              ? React.cloneElement(currentChild, { isExpanded: expanded })
+              : currentChild}
+          </div>
         ) : (
           <div className="widget-edit-placeholder">
             <p>Drag or remove this widget</p>

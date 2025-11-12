@@ -7,6 +7,7 @@ import { defaultLayout } from "../utils/defaultLayout";
 import Widget from "../components/widgets/Widgets";
 import UpcomingBill from "../components/widgets/UpcomingBills";
 import Savings from "../components/widgets/Savings";
+import CashFlow from "../components/widgets/CashFlow";
 
 import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
@@ -89,6 +90,16 @@ export default function Dashboard() {
             onWidgetChange={(newType) => handleWidgetChange(id, newType)}
           >
             <p>CashFlow chart placeholder</p>
+          </Widget>
+        );
+      case "CashFlow":
+        return (
+          <Widget
+            title="CashFlow"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <CashFlow />
           </Widget>
         );
       case "Investments":
