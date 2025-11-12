@@ -16,20 +16,21 @@ export default function CashFlow({ isExpanded = false }) {
   const [height, setHeight] = useState(250);
   const containerRef = useRef(null);
 
-  // === Utility helpers ===
   const getData = (key) => JSON.parse(localStorage.getItem(key)) || [];
-  const calculateTotal = (key, amountKey = "amount") =>
-    getData(key).reduce((sum, item) => sum + (parseFloat(item[amountKey]) || 0), 0);
+  const calculateTotal = (key, field = "amount") => {
+    const items = getData(key);
+    return items.reduce((sum, item) => sum + (parseFloat(item[field]) || 0), 0);
+  };
+
 
   const updateTotals = () => {
     setTotals({
-      income: calculateTotal("income"),
-      expense: calculateTotal("expense"),
-      bills: calculateTotal("bills"),
+      income: calculateTotal("income", "netMonthly"),
+      expense: calculateTotal("expense", "totalAmount"),
+      bills: calculateTotal("bills", "amount"),
     });
   };
 
-  // === Watch for localStorage changes ===
   useEffect(() => {
     updateTotals();
     const handleStorageChange = () => updateTotals();
@@ -41,7 +42,6 @@ export default function CashFlow({ isExpanded = false }) {
     };
   }, []);
 
-  // === Responsive height logic ===
   useEffect(() => {
     if (!containerRef.current) return;
     const resizeObserver = new ResizeObserver(() => {
@@ -52,7 +52,6 @@ export default function CashFlow({ isExpanded = false }) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  // === Expanded size scaling ===
   const expandedHeight = isExpanded ? "60vh" : `${height}px`;
   const expandedFontSize = isExpanded ? "1.2rem" : "1rem";
   const expandedLegendPos = isExpanded ? "top" : "bottom";
@@ -61,28 +60,32 @@ export default function CashFlow({ isExpanded = false }) {
     labels: [""],
     datasets: [
       {
-        label: "Income",
+        label: "Income (After Tax)",
         data: [totals.income],
-        backgroundColor: "#6ce5e8",
-        borderColor: "#48e0e0",
+        backgroundColor: "#00e676",
+        borderColor: "#35b075ff",
         borderWidth: 1,
+        stack: "income",
       },
       {
         label: "Expenses",
         data: [totals.expense],
-        backgroundColor: "#ff3bb4",
-        borderColor: "#e233a2",
+        backgroundColor: "#e600adff",
+        borderColor: "#e600adff",
         borderWidth: 1,
+        stack: "outgoings",
       },
       {
         label: "Bills",
         data: [totals.bills],
-        backgroundColor: "#ff9800",
-        borderColor: "#f57c00",
+        backgroundColor: "#ff8d1cff",
+        borderColor: "#c98139ff",
         borderWidth: 1,
+        stack: "outgoings",
       },
     ],
   };
+
 
   const options = {
     responsive: true,
@@ -91,6 +94,7 @@ export default function CashFlow({ isExpanded = false }) {
     scales: {
       x: {
         beginAtZero: true,
+        stacked: true,  
         ticks: {
           callback: (v) => `£${v.toLocaleString()}`,
           color: "#fff",
@@ -98,18 +102,22 @@ export default function CashFlow({ isExpanded = false }) {
         grid: { display: false },
       },
       y: {
-        grid: { display: false },
+        stacked: true,  
         ticks: { color: "#fff" },
+        grid: { display: false },
       },
     },
     plugins: {
       legend: {
-        position: expandedLegendPos,
-        labels: { color: "#fff", font: { size: isExpanded ? 16 : 14 } },
         position: "bottom",
+        labels: {
+          color: "#fff",
+          font: { size: 13, weight: "bold" },
+        },
       },
     },
   };
+
 
   return (
     <div
@@ -135,9 +143,9 @@ export default function CashFlow({ isExpanded = false }) {
           fontSize: expandedFontSize,
         }}
       >
+        <span>Income: £{totals.income.toLocaleString()}</span>
         <span>Expense: £{totals.expense.toLocaleString()}</span>
         <span>Bills: £{totals.bills.toLocaleString()}</span>
-        <span>Income: £{totals.income.toLocaleString()}</span>
       </div>
     </div>
   );

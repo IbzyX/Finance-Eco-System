@@ -5,7 +5,7 @@ import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 
 export default function EntryExpense () {
     const [expense, setExpense] = useState([]);
-    const [newExpense, setNewExpense] = useState({ name:"", amount:"", date:"", reoccurring:"", totalAmount:""});
+    const [newExpense, setNewExpense] = useState({ name:"", amount:"", date:"", reoccurring:""});
     const [hasLoaded, setHasLoaded] = useState(false);
 
     useEffect(() => {
@@ -32,23 +32,31 @@ export default function EntryExpense () {
 
     const addExpense = () => {
         if (
-            !newExpense.name.trim() |
+            !newExpense.name.trim() ||
             !newExpense.amount ||
             !newExpense.date ||
-            !newExpense.reoccurring ||
-            !newExpense.totalAmount 
+            !newExpense.reoccurring
         ) {
-            showWarning("Please fill all fields before adding Expense. ");
+            showWarning("Please fill all fields before adding Expense.");
             return;
         }
 
-        const updated = [ ...expense, { ...newExpense, amount: Number(newExpense.amount)}];
+        const amount = Number(newExpense.amount);
+        const reoccurring = Number(newExpense.reoccurring);
+        const totalAmount = amount * reoccurring;
+
+        const updated = [
+            ...expense,
+            { ...newExpense, amount, reoccurring, totalAmount },
+        ];
+
         setExpense(updated);
         localStorage.setItem("expense", JSON.stringify(updated));
-        showSuccess(`Expense "${newExpense.name}" addedd successfully! `);
+        showSuccess(`Expense "${newExpense.name}" added successfully!`);
 
-        setNewExpense({  name:"", amount:"", date:"", reoccurring:"",totalAmount:"" });
+        setNewExpense({ name: "", amount: "", date: "", reoccurring: "", totalAmount:"" });
     };
+
 
     const removeExpense = (index) => {
         const removeExpense = expense[index];
@@ -85,7 +93,7 @@ export default function EntryExpense () {
             <div
                 style={{
                 display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
+                gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
                 alignItems: "center",
                 
                 marginBottom: "1rem",
@@ -128,19 +136,6 @@ export default function EntryExpense () {
                     style={inputStyle}
                 />
                 
-                <input
-                    type="number"
-                    name="totalAmount"
-                    placeholder="total Amount"
-                    value={newExpense.totalAmount}
-                    onChange={handleChange}
-                    style={inputStyle}
-                />
-                
-                
-
-                
-
                 <button
                     onClick={addExpense}
                     style={buttonAddStyle}
@@ -169,7 +164,7 @@ export default function EntryExpense () {
                             <td>{Number(expense.amount).toFixed(2)}</td>
                             <td>{expense.date}</td>
                             <td>{expense.reoccurring}</td>
-                            <td>{expense.totalAmount}</td>
+                            <td>£{(expense.amount * expense.reoccurring).toFixed(2)}</td>
                             <td>
                             <button
                                 onClick={() => removeExpense(i)}
