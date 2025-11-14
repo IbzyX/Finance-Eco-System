@@ -54,7 +54,6 @@ export default function CashFlow({ isExpanded = false }) {
 
   const expandedHeight = isExpanded ? "60vh" : `${height}px`;
   const expandedFontSize = isExpanded ? "1.2rem" : "1rem";
-  const expandedLegendPos = isExpanded ? "top" : "bottom";
 
   const data = {
     labels: [""],
@@ -125,28 +124,34 @@ export default function CashFlow({ isExpanded = false }) {
       style={{
         width: "100%",
         height: expandedHeight,
-        minHeight: "250px",
+        maxHeight: "300px",
         position: "relative",
         transition: "height 0.4s ease",
       }}
     >
-      <Bar data={data} options={{ ...options, maintainAspectRatio: false }} />
+    {totals.income === 0 && totals.expense === 0 && totals.bills === 0 ? (
+      <p style={{ color: "#aaa" }}>No upcoming bills found.</p>
+    ) : (
+      <>
+        <Bar data={data} options={{ ...options, maintainAspectRatio: false }} />
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "#fff",
-          gap: "2rem",
-          marginBottom: "0.5rem",
-          fontSize: expandedFontSize,
-        }}
-      >
-        <span>Income: £{totals.income.toLocaleString()}</span>
-        <span>Expense: £{totals.expense.toLocaleString()}</span>
-        <span>Bills: £{totals.bills.toLocaleString()}</span>
-      </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#fff",
+            gap: "2rem",
+            marginBottom: "0.5rem",
+            fontSize: expandedFontSize,
+          }}
+          >
+            <span>Expense: £{totals.expense.toLocaleString()}</span>
+            <span>Bills: £{totals.bills.toLocaleString()}</span>
+            <span>Income: £{totals.income.toLocaleString()}</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
