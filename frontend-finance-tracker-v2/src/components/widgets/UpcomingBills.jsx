@@ -64,7 +64,7 @@ export default function UpcomingBillsWidget() {
     <div>
       <p>
         Total bills due in 30 days:{" "}
-        <strong>£{Number(total || 0).toFixed(2)}</strong>
+        <strong style={{color:"#00e676"}}>£{Number(total || 0).toFixed(2)}</strong>
       </p>
 
       {bills.length === 0 ? (
@@ -86,7 +86,7 @@ export default function UpcomingBillsWidget() {
                 <tr key={i}>
                   <td>{bill.name}</td>
                   <td>{bill.date}</td>
-                  <td>£{Number(bill.amount).toFixed(2)}</td>
+                  <td style={{color:"#00e676", fontWeight:"bold"}}>£{Number(bill.amount).toFixed(2)}</td>
                   <td>{bill.type}</td>
                   <td>{bill.recurring ? "Yes" : "No"}</td> 
                 </tr>

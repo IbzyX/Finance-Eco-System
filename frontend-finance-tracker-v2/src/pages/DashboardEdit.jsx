@@ -33,7 +33,7 @@ export default function DashboardEdit() {
 
     // Define all widgets
     const allWidgets = [
-        { id: "Total Pie", size: "large", component: <p>Total Pie chart placeholder</p> },
+        { id: "Total Wealth", size: "large", component: <p>Total wealth chart placeholder</p> },
         { id: "Investments", size: "large", component: <p>Investments placeholder</p> },
         { id: "Savings Projection", size: "large", component: <p>Savings chart placeholder</p> },
 
@@ -139,7 +139,7 @@ export default function DashboardEdit() {
 
             <div className="widget-section">
                 <h4>Large</h4>
-                {["Total Pie", "Investments", "Savings Projection"].map((w) => (
+                {["Total Wealth", "Investments", "Savings Projection"].map((w) => (
                     <p
                         key={w}
                         className={activeWidgets.includes(w) ? "active-widget" : "inactive-widget"}

@@ -52,14 +52,14 @@ export default function Dashboard() {
             <UpcomingBill />
           </Widget>
         );
-      case "Total Pie":
+      case "Total Wealth":
         return (
           <Widget
-            title="Total Pie"
+            title="Total Wealth"
             size={size}
             onWidgetChange={(newType) => handleWidgetChange(id, newType)}
           >
-            <p>Total Pie chart placeholder</p>
+            <p>Total Wealth chart placeholder</p>
           </Widget>
         );
       case "Accounts":

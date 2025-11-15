@@ -71,12 +71,37 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   overflow: hidden; 
   padding: 1.5rem;
+  animation: widgetExpand 0.35s ease forwards;
 }
 
-@keyframes growIn {
-  from { transform: scale(0.97); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.widget.collapsing {
+  animation: widgetCollapse 0.35s ease forwards;
 }
+
+/* Keyframes */
+@keyframes widgetExpand {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes widgetCollapse {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+}
+
+
 
 .widget-backdrop {
   position: fixed;

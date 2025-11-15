@@ -146,9 +146,9 @@ export default function CashFlow({ isExpanded = false }) {
             fontSize: expandedFontSize,
           }}
           >
+            <span>Income: £{totals.income.toLocaleString()}</span>
             <span>Expense: £{totals.expense.toLocaleString()}</span>
             <span>Bills: £{totals.bills.toLocaleString()}</span>
-            <span>Income: £{totals.income.toLocaleString()}</span>
           </div>
         </>
       )}

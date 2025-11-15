@@ -56,7 +56,7 @@ export default function Widget({
                 value={selectedWidget}
                 onChange={handleWidgetChange}
               >
-                <option value="Total Pie">Total Pie</option>
+                <option value="Total wealth">Total wealth</option>
                 <option value="Investments">Investments</option>
                 <option value="Savings">Savings</option>
                 <option value="Accounts">Accounts</option>

@@ -12,6 +12,7 @@ export default function EntrySavings() {
     contributionInterval: "",
     contributionAmount: "",
     targetDate: "",
+    targetAmount: "",
     aer: "",
   });
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -43,6 +44,7 @@ export default function EntrySavings() {
       !newSaving.contributionInterval ||
       !newSaving.contributionAmount ||
       !newSaving.targetDate ||
+      !newSaving.targetAmount ||
       !newSaving.aer
     ) {
       showWarning("Please fill all fields before adding Savings.");
@@ -61,6 +63,7 @@ export default function EntrySavings() {
       contributionInterval: "",
       contributionAmount: "",
       targetDate: "",
+      targetAmount: "",
       aer: "",
     });
   };
@@ -96,7 +99,7 @@ export default function EntrySavings() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr)) 50px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr)) 50px",
           alignItems: "center",
           gap: "0.5rem",
           marginBottom: "1rem",
@@ -181,6 +184,14 @@ export default function EntrySavings() {
             style={inputStyle}
         />
 
+        <input
+          type="number"
+          name="targetAmount"
+          placeholder="Target Amount"
+          value={newSaving.targetAmount}
+          onChange={handleChange}
+          style={inputStyle}
+        />
 
         <input
           type="number"
@@ -206,6 +217,7 @@ export default function EntrySavings() {
               <th>Contribution<br/>Interval</th>
               <th>Contribution<br/>Amount</th>
               <th>Target<br/>Date</th>
+              <th>Target<br/>Amount</th>
               <th>AER (%)</th>
               <th></th>
             </tr>
@@ -215,10 +227,11 @@ export default function EntrySavings() {
               <tr key={i}>
                 <td>{saving.goal}</td>
                 <td>{saving.startDate}</td>
-                <td>{saving.initialAmount}</td>
+                <td>£{saving.initialAmount}</td>
                 <td>{saving.contributionInterval}</td>
                 <td>{saving.contributionAmount}</td>
                 <td>{saving.targetDate}</td>
+                <td>£{saving.targetAmount}</td>
                 <td>{saving.aer}</td>
                 <td>
                   <button
