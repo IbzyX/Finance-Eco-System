@@ -54,6 +54,15 @@ export default function EntrySavings() {
     const updated = [...saving, { ...newSaving }];
     setSaving(updated);
     localStorage.setItem("saving", JSON.stringify(updated));
+
+    const summary = {
+      amount: Number(newSaving.initialAmount),
+      goalAmount: Number(newSaving.targetAmount),
+      goalDate: newSaving.targetDate,
+    };
+
+    localStorage.setItem("savings", JSON.stringify(summary));
+
     showSuccess(`Savings "${newSaving.goal}" added successfully!`);
 
     setNewSaving({
