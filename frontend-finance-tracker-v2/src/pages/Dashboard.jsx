@@ -8,6 +8,7 @@ import Widget from "../components/widgets/Widgets";
 import UpcomingBill from "../components/widgets/UpcomingBills";
 import Savings from "../components/widgets/Savings";
 import CashFlow from "../components/widgets/CashFlow";
+import TotalWealth from "../components/widgets/TotalWealth";
 
 import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
@@ -59,7 +60,7 @@ export default function Dashboard() {
             size={size}
             onWidgetChange={(newType) => handleWidgetChange(id, newType)}
           >
-            <p>Total Wealth chart placeholder</p>
+            <TotalWealth />
           </Widget>
         );
       case "Accounts":
