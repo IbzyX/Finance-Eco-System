@@ -9,6 +9,7 @@ import UpcomingBill from "../components/widgets/UpcomingBills";
 import Savings from "../components/widgets/Savings";
 import CashFlow from "../components/widgets/CashFlow";
 import TotalWealth from "../components/widgets/TotalWealth";
+import SavingProjection from "../components/widgets/SavingProjection";
 
 import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
@@ -120,7 +121,7 @@ export default function Dashboard() {
             size={size}
             onWidgetChange={(newType) => handleWidgetChange(id, newType)}
           >
-            <p>Savings chart placeholder</p>
+            <SavingProjection />
           </Widget>
         );
       case "Habits":
