@@ -134,6 +134,37 @@ export default function Dashboard() {
             <p>Habits placeholder</p>
           </Widget>
         );
+      case "Debt":
+        return (
+          <Widget
+            title="Debt"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Debt placeholder</p>
+          </Widget>
+        );
+      case "Income":
+        return (
+          <Widget
+            title="Income"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Income placeholder</p>
+          </Widget>
+        );
+
+      case "Expense":
+        return (
+          <Widget
+            title="Expense"
+            size={size}
+            onWidgetChange={(newType) => handleWidgetChange(id, newType)}
+          >
+            <p>Expense placeholder</p>
+          </Widget>
+        );
       default:
         return (
           <Widget

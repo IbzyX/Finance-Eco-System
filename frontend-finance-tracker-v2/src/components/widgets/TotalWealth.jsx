@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 
-export default function TotalPie() {
+export default function TotalWealth() {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
 

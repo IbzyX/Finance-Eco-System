@@ -8,7 +8,8 @@ import Widget from "../components/widgets/Widgets";
 import UpcomingBill from "../components/widgets/UpcomingBills";
 import Savings from "../components/widgets/Savings";
 import CashFlow from "../components/widgets/CashFlow";
-
+import SavingProjection from "../components/widgets/SavingProjection";
+import TotalWealth from "../components/widgets/TotalWealth";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -33,18 +34,26 @@ export default function DashboardEdit() {
 
     // Define all widgets
     const allWidgets = [
-        { id: "Total Wealth", size: "large", component: <p>Total wealth chart placeholder</p> },
-        { id: "Investments", size: "large", component: <p>Investments placeholder</p> },
-        { id: "Savings Projection", size: "large", component: <p>Savings chart placeholder</p> },
-
-
-        { id: "Upcoming Bills", size: "medium", component: <UpcomingBill /> },
+        { id: "Total Wealth", size: "large", component: <TotalWealth /> },
         { id: "Accounts", size: "medium", component: <p>Accounts placeholder</p> },
         { id: "Cashflow Chart", size: "medium", component: <p>Cashflow placeholder</p> },
         { id: "CashFlow", size: "medium", component: <CashFlow /> },
-        { id: "Habits", size: "medium", component: <p>Habits placeholder</p> },
 
+
+
+        { id: "Investments", size: "large", component: <p>Investments placeholder</p> },
+        { id: "Savings Projection", size: "large", component: <SavingProjection /> },
         { id: "Savings", size: "small", component: <Savings /> },
+        { id: "Income", size: "medium", component: <p>Income placeholder</p> },
+
+
+
+        { id: "Upcoming Bills", size: "medium", component: <UpcomingBill /> },
+        { id: "Habits", size: "medium", component: <p>Habits placeholder</p> },
+        { id: "Debt", size: "medium", component: <p>Debt placeholder</p> },
+        { id: "Expense", size: "medium", component: <p>Expense placeholder</p> },
+
+
     ];
 
     // Track active widgets separately
@@ -105,17 +114,8 @@ export default function DashboardEdit() {
             <h3><em>Edit Widgets</em></h3>
 
             <div className="widget-section">
-            <h4>Small</h4>
-            <p className={activeWidgets.includes("Savings") ? "active-widget" : ""}>Savings</p>
-            <p>Income</p>
-            <p>Expense</p>
-            </div>
-
-            <div className="divider"></div>
-
-            <div className="widget-section">
-                <h4>Medium</h4>
-                {["Upcoming Bills", "Cashflow Chart", "CashFlow", "Habits", "Debt", "Accounts"].map((w) => (
+                <h4>Other</h4>
+                {["Total Wealth", "Accounts", "Cashflow Chart", "CashFlow"].map((w) => (
                     <p
                         key={w}
                         className={activeWidgets.includes(w) ? "active-widget" : "inactive-widget"}
@@ -138,8 +138,32 @@ export default function DashboardEdit() {
             <div className="divider"></div>
 
             <div className="widget-section">
-                <h4>Large</h4>
-                {["Total Wealth", "Investments", "Savings Projection"].map((w) => (
+                <h4>Income</h4>
+                {["Investments", "Savings Projection", "Savings", "Income"].map((w) => (
+                    <p
+                        key={w}
+                        className={activeWidgets.includes(w) ? "active-widget" : "inactive-widget"}
+                        onClick={() => {
+                            if (!activeWidgets.includes(w)) {
+                                setActiveWidgets(prev => [...prev, w]);
+                            }
+                        }}
+                        style={{
+                            cursor: activeWidgets.includes(w) ? "default" : "pointer",
+                            opacity: activeWidgets.includes(w) ? 0.5 : 1,
+                        }}
+                        >
+                        {w}
+                    </p>
+
+                ))}
+            </div>
+
+            <div className="divider"></div>
+
+            <div className="widget-section">
+                <h4>Expense</h4>
+                {["Upcoming Bills", "Habits", "Debt", "Expense"].map((w) => (
                     <p
                         key={w}
                         className={activeWidgets.includes(w) ? "active-widget" : "inactive-widget"}
