@@ -1,11 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 
-export default function SavingProjection() {
-    const canvasRef = useRef(null);
+export default function SavingsProjection() {
     const chartRef = useRef(null);
+    const canvasRef = useRef(null);
 
     const [savingsList, setSavingsList] = useState([]);
+
+    useEffect(() => {
+        const load = () => {
+            const data = JSON.parse(localStorage.getItem("saving")) || [];
+            setSavingsList(Array.isArray(data) ? data : []);
+        };
+
+        load();
+
+        window.addEventListener("storage", load);
+        return () => window.removeEventListener("storage", load);
+    }, []);
+
     const intervalToMonthly = {
         no: 0,
         daily: 30,
@@ -17,108 +30,123 @@ export default function SavingProjection() {
         annually: 1 / 12,
     };
 
-    useEffect(() =>{
-        const saved = JSON.parse(localStorage.getItem("saving")) || [];
-        setSavingsList(Array.isArray(saved) ? saved : []);
-    }, []);
+    const getMonths = (dateStr) => {
+        if (!dateStr) return 0;
+        const now = new Date();
+        const target = new Date(dateStr);
+        return (target.getFullYear() - now.getFullYear()) * 12 +
+            (target.getMonth() - now.getMonth());
+    };
 
-    const buildProjection = (entry) => {
-        const startAmount = Number(entry.initalAmount) || 0;
-        const monthlyContribution = 
-            (Number(entry.contributionAmount) || 0) *
-            (intervalToMonthly[entry.contributionInterval] || 0);
+    const maxMonths = Math.max(
+        ...savingsList.map((s) => getMonths(s.targetDate)),
+        6
+    );
 
-        const today = new Date();
-        const goal = new Date(entry.targetDate);
+    const labels = Array.from({ length: maxMonths + 1 }, (_, i) => `Month ${i}`);
 
-        const months =
-            (goal.getFullYear() - today.getFullYear()) * 12 +
-            (goal.getMonth() - today.getMonth());
+    const datasets = [];
+    const totalRunning = Array(maxMonths + 1).fill(0);
+
+    savingsList.forEach((s, i) => {
+        const initial = Number(s.initialAmount) || 0;
+        const contrib = Number(s.contributionAmount) || 0;
+        const monthly = contrib * (intervalToMonthly[s.contributionInterval] || 0);
+        const monthsToGoal = getMonths(s.targetDate);
+
+        // AER handling
+        const aer = Number(s.aer) || 0;
+        const aerMonthlyFactor = 1 + aer / 100 / 12;
 
         const points = [];
-        let runningTotal = startAmount;
+        let runningBalance = initial;
 
-        for (let i = 0; i <= months; i++) {
-            points.push(runningTotal);
-            runningTotal += monthlyContribution;
+        for (let m = 0; m <= maxMonths; m++) {
+            if (m > monthsToGoal) {
+                points.push(null); // ⛔ stop line at goal date
+                continue;
+            }
+
+            // Add compound interest + contribution
+            runningBalance = runningBalance * aerMonthlyFactor + monthly;
+
+            points.push(runningBalance);
+            totalRunning[m] += runningBalance;
         }
-        return points;
-    };
-
-    const getMaxMonths = () => {
-        return savingsList.reduce((max, entry) => {
-            const diff = 
-                (new Date(entry.targetDate).getFullYear() - new Date().getFullYear()) *
-                    12 +
-                (new Date(entry.targetDate).getMonth() - new Date().getMonth());
-
-            return Math.max(max, diff);
-        }, 0);
-    };
-
-    useEffect(() => {
-        if (!canvasRef.current || savingsList.length === 0) return;
-        const ctx = canvasRef.current.getContext("2d");
-        if  (chartRef.current) chartRef.current.destroy();
-
-        const labels = Array.from({ length: getMaxMonths() + 1 }).map(
-            ( _, i ) => `Month ${i}`
-        );
-        
-        
-        const lineColors = [
-            "#6ce5e8",
-            "#48e055",
-            "#ff9800",
-            "#ff3bb4",
-            "#b388ff",
-            "#ffd54f",
-        ];
-
-        const datasets = savingsList.map((entry, i) => ({
-            lable: entry.goal || `Goal ${i + 1}`,
-            data: buildProjection(entry),
-            fill: false,
-            borderColor: lineColors[i % lineColors.length],
-            tesion: 0.3,
-        }));
-
-        const maxMonths = getMaxMonths();
-        const totalLine = Array.from({ length: maxMonths + 1 }).map(
-            ( _, idx ) =>
-                savingsList.reduce((sum,entry) => {
-                    const entryLine = buildProjection(entry);
-                    return sum + (entryLine[idx] || entryLine[entryLine.length - 1] || 0);
-            }, 0)
-        );
 
         datasets.push({
-            label: "TOTAL",
-            data: totalLine,
-            borderColor: "white",
+            label: s.goal || `Goal ${i + 1}`,
+            data: points,
+            borderColor: ["#6ce5e8", "#48e055", "#ff9800", "#e066ff"][i % 4],
+            backgroundColor: "transparent",
             borderWidth: 3,
-            tension: 0.25,
+            tension: 0.3,
         });
+    });
+
+    // Total line
+    datasets.push({
+        label: "TOTAL",
+        data: totalRunning,
+        borderColor: "#fff",
+        borderWidth: 3,
+        tension: 0.3,
+        backgroundColor: "transparent",
+    });
+
+
+    useEffect(() => {
+        if (!canvasRef.current) return;
+
+        const ctx = canvasRef.current.getContext("2d");
+
+        if (chartRef.current) chartRef.current.destroy();
 
         chartRef.current = new Chart(ctx, {
             type: "line",
-            data: {labels, datasets },
-            options: { 
+            data: { labels, datasets },
+            options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {legned: {labels: {color: "#fff" } } },
+                plugins: {
+                    legend: { labels: { color: "white" } },
+                },
                 scales: {
-                    x: { ticks: {color: "#ccc" } },
-                    y: { ticks: {color: "#ccc" } },
+                    x: {
+                        ticks: { color: "white" },
+                        grid: { color: "rgba(255,255,255,0.1)" },
+                    },
+                    y: {
+                        ticks: {
+                            color: "white",
+                            callback: (v) => "£" + v.toLocaleString(),
+                        },
+                        grid: { color: "rgba(255,255,255,0.1)" },
+                    },
                 },
             },
         });
     }, [savingsList]);
 
+    if (savingsList.length === 0) {
+        return (
+            <div style={{ textAlign: "center", color: "#888", padding: "2rem" }}>
+                No savings projection available.
+            </div>
+        );
+    }
 
     return (
-        <div style={{ width: "100%", height: "300px" }}>
-            <canvas ref={canvasRef}></canvas>
+        <div style={{
+            width: "100%",
+            height: "100%",
+            padding: "1rem",
+            color: "white",
+            boxSizing: "border-box"
+        }}>
+            <div style={{ width: "100%", height: "100%" }}>
+                <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
+            </div>
         </div>
     );
 }
