@@ -54,7 +54,6 @@ export default function SavingsProjection() {
         const monthly = contrib * (intervalToMonthly[s.contributionInterval] || 0);
         const monthsToGoal = getMonths(s.targetDate);
 
-        // AER handling
         const aer = Number(s.aer) || 0;
         const aerMonthlyFactor = 1 + aer / 100 / 12;
 
@@ -63,11 +62,10 @@ export default function SavingsProjection() {
 
         for (let m = 0; m <= maxMonths; m++) {
             if (m > monthsToGoal) {
-                points.push(null); // ⛔ stop line at goal date
+                points.push(null);
                 continue;
             }
 
-            // Add compound interest + contribution
             runningBalance = runningBalance * aerMonthlyFactor + monthly;
 
             points.push(runningBalance);
@@ -84,7 +82,6 @@ export default function SavingsProjection() {
         });
     });
 
-    // Total line
     datasets.push({
         label: "TOTAL",
         data: totalRunning,

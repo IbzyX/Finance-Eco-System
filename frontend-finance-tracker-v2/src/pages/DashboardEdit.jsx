@@ -10,6 +10,9 @@ import Savings from "../components/widgets/Savings";
 import CashFlow from "../components/widgets/CashFlow";
 import SavingProjection from "../components/widgets/SavingProjection";
 import TotalWealth from "../components/widgets/TotalWealth";
+import Income from "../components/widgets/income";
+import Investments from "../components/widgets/Investment";
+
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -41,10 +44,10 @@ export default function DashboardEdit() {
 
 
 
-        { id: "Investments", size: "large", component: <p>Investments placeholder</p> },
+        { id: "Investments", size: "large", component: <Investments /> },
         { id: "Savings Projection", size: "large", component: <SavingProjection /> },
         { id: "Savings", size: "small", component: <Savings /> },
-        { id: "Income", size: "medium", component: <p>Income placeholder</p> },
+        { id: "Income", size: "medium", component: <Income /> },
 
 
 
