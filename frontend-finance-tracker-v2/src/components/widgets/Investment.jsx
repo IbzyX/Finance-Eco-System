@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Chart as ChartJS, TimeScale, LinearScale, tooltip, Legend, scales } from "chart.js";
-import "chartjs-adapter-date-fns";
+import { Chart as ChartJS, TimeScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
+import "chartjs-adapter-date-fns";
 import { Chart } from "react-chartjs-2";
+import FinancialChart from "./FinancialChart";
 
 ChartJS.register(
     TimeScale,
     LinearScale,
-    tooltip, 
+    Tooltip,
     Legend,
     CandlestickController,
-    CandlestickElement,
+    CandlestickElement
 );
 
 export default function Investments() {
-    const [investments, setInvestments ] = useState([]);
+    const [investments, setInvestments] = useState([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    
-    const [chartData, setChartData] = useState(mull);
+    const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -26,8 +26,8 @@ export default function Investments() {
         currentPrice: 0,
         change: 0,
         changePercent: 0,
-        quantity: 0, 
-        avaragePrice: 0,
+        quantity: 0,
+        averagePrice: 0,
         marketValue: 0,
         pnl: 0,
         pnlPercent: 0,
@@ -42,18 +42,17 @@ export default function Investments() {
 
         try {
             const parsed = JSON.parse(saved);
-            if (Array.isArray(parse)) {
-                setInvestments(parsed);
-            } else {
-                setInvestments([]);
-            }
-        } catch (e) {
-            console.error("Failded to parse investments from localStorage: ", e);
+            if (Array.isArray(parsed)) setInvestments(parsed);
+            else setInvestments([]);
+        } catch {
             setInvestments([]);
         }
     }, []);
 
-    const currentHolding = investments.length > 0 ? investments[Math.min(selectedIndex, investments.length - 1)] : null;
+    const currentHolding =
+        investments.length > 0
+            ? investments[Math.min(selectedIndex, investments.length - 1)]
+            : null;
 
     const fetchStockData = async (holding) => {
         if (!holding) return;
@@ -65,59 +64,65 @@ export default function Investments() {
         setError(null);
 
         try {
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=6mo`;
-            const res = await fetch(url);
-            if (!res.ok) {
-                throw new Error(`Yahoo API returned ${res.status}`);
-            }
+            const yahooURL = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1y`;
+            const proxyURL = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooURL)}`;
+            const res = await fetch(proxyURL);
+
+            if (!res.ok) throw new Error(`Yahoo error ${res.status}`);
 
             const json = await res.json();
             const result = json?.chart?.result?.[0];
-            if (!result) throw new Error("Unexpected yahoo response shape");
-            
-            const timestamps = result.timestamp || [];
-            const quote = result.indicators?.quote?.[0] || {};
-            const opens = quote.open || [];
-            const highs = quote.high || [];
-            const lows = quote.low || [];
-            const closes = quote.close || [];
+            if (!result) throw new Error("Invalid data");
 
-            const candles = timestamps.map((t,i) => ({
+            const ts = result.timestamp || [];
+            const quote = result.indicators?.quote?.[0] || {};
+
+            const candles = ts.map((t, i) => ({
                 x: new Date(t * 1000),
-                o: opens[i],
-                h: highs[i],
-                l: lows[i],
-                c: closes[i],
+                o: quote.open?.[i],
+                h: quote.high?.[i],
+                l: quote.low?.[i],
+                c: quote.close?.[i],
             }));
 
             setChartData({
                 datasets: [
                     {
-                        label: `${symbol} price`,
-                        data: candles, 
-                        borderColor: "#6ce5e8",
+                        label: `${symbol} Price`,
+                        data: candles,
+                        type: CandlestickController.id,
+                        upColor: "#48e055",
+                        downColor: "#ff5252",
+                        borderColor: "#999",
                         color: {
                             up: "#48e055",
                             down: "#ff5252",
-                            unchanged: "#cccccc",
+                            unchanged: "#aaa",
                         },
                     },
                 ],
             });
 
-            const meta = result.meta || {};
-            const livePrice = meta.regularMarketPrice || closes[closes.length - 1];
+            const closes = quote.close || [];
+            const livePrice =
+                result.meta?.regularMarketPrice || closes[closes.length - 1];
             const prevClose = closes[closes.length - 2] || livePrice;
 
             const quantity = Number(holding.amount) || 0;
-            const avaragePrice = Number(holding.avarageValue) || 0;
+            const averagePrice = Number(holding.avarageValue) || 0;
 
-            const marketValue = livePrice * quantity; 
-            const pnl = (livePrice - avaragePrice) * quantity;
-            const pnlPercent = avaragePrice > 0 ? ((livePrice - avaragePrice) / avaragePrice) * 100 : 0;
+            const marketValue = livePrice * quantity;
+            const pnl = (livePrice - averagePrice) * quantity;
+            const pnlPercent =
+                averagePrice > 0
+                    ? ((livePrice - averagePrice) / averagePrice) * 100
+                    : 0;
 
-            const change = livePrice - prevClose;  
-            const changePercent = prevClose > 0 ? ((livePrice - prevClose) / prevClose) * 100 : 0;
+            const change = livePrice - prevClose;
+            const changePercent =
+                prevClose > 0
+                    ? ((livePrice - prevClose) / prevClose) * 100
+                    : 0;
 
             setMetrics({
                 symbol,
@@ -125,13 +130,13 @@ export default function Investments() {
                 change,
                 changePercent,
                 quantity,
-                avaragePrice,
+                averagePrice,
                 marketValue,
                 pnl,
                 pnlPercent,
             });
         } catch (err) {
-            setError(err.message || "failed to load price data");
+            setError(err.message);
         } finally {
             setLoading(false);
         }
@@ -146,24 +151,19 @@ export default function Investments() {
         }, 30000);
 
         return () => clearInterval(id);
-    }, [currentHolding?.name, currentHolding?.amount, currentHolding?.avarageValue]);
+    }, [currentHolding?.name, currentHolding?.amount, currentHolding?.averageValue]);
 
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         parsing: false,
         plugins: {
-            legend: {
-                display: false,
-            },
+            legend: { display: false },
             tooltip: {
                 callbacks: {
                     label(context) {
                         const v = context.raw;
-                        if (!v) return "";
-                        return `O: ${v.o.toFixed(2)} H: ${v.h.toFixed(
-                            2
-                        )} L: ${v.l.toFixed(2)} C: ${v.c.toFixed(2)}`;
+                        return `O:${v.o}  H:${v.h}  L:${v.l}  C:${v.c}`;
                     },
                 },
             },
@@ -172,33 +172,33 @@ export default function Investments() {
             x: {
                 type: "time",
                 time: { unit: "day" },
-                ticks: { color: "#ccc" },
                 grid: { color: "#333" },
+                ticks: { color: "#ccc" },
             },
             y: {
-                ticks: { color: "#ccc" },
+                type: "linear",
                 grid: { color: "#333" },
+                ticks: { color: "#ccc" },
             },
         },
     };
 
-    const formatSigned = (value, opts = {}) => {
-        const num = Number(value) || 0;
+    const formatSigned = (v) => {
+        const num = Number(v) || 0;
         const sign = num > 0 ? "+" : num < 0 ? "-" : "";
-        const abs = Math.abs(num).toFixed(opts.dp ?? 2);
-        return `${sign}${abs}`;
+        return `${sign}${Math.abs(num).toFixed(2)}`;
     };
 
     if (investments.length === 0) {
         return (
             <div style={{ color: "#aaa", textAlign: "center", padding: "1rem" }}>
-                No investments found. 
+                No investments found.
             </div>
         );
     }
 
     return (
-        <div 
+        <div
             style={{
                 display: "flex",
                 flexDirection: "column",
@@ -207,7 +207,7 @@ export default function Investments() {
             }}
         >
             <div style={{ display: "flex", flex: 1, minHeight: 0, gap: "1rem" }}>
-                <div 
+                <div
                     style={{
                         flex: 2,
                         background: "#181818",
@@ -216,7 +216,7 @@ export default function Investments() {
                         minHeight: 0,
                     }}
                 >
-                    <div 
+                    <div
                         style={{
                             display: "flex",
                             justifyContent: "space-between",
@@ -224,23 +224,165 @@ export default function Investments() {
                             marginBottom: "0.5rem",
                         }}
                     >
-                        <h3 style={{ margin: 0 }}>{metrics.symbol || "Investment"}</h3>
+                        <h3>{metrics.symbol}</h3>
                         <div style={{ textAlign: "right", fontSize: "1rem" }}>
                             <div style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
                                 £{metrics.currentPrice.toFixed(2)}
                             </div>
-                            <div style={{ color: metrics.change > 0 ? "#48e055" : metrics.change < 0 ? "#ff5252" : "#ccc" }}>
+                            <div
+                                style={{
+                                    color:
+                                        metrics.change > 0
+                                            ? "#48e055"
+                                            : metrics.change < 0
+                                            ? "#ff5252"
+                                            : "#ccc",
+                                }}
+                            >
                                 {formatSigned(metrics.change)} (
-                                    {formatSigned(metrics.changePercent, { dp: 2 })}
-                                    %
-                                )
+                                {formatSigned(metrics.changePercent)}%)
                             </div>
                         </div>
                     </div>
 
-                    
+                    <div
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            minHeight: "180px",
+                            maxHeight: "300px",
+                        }}
+                    >
+                        {chartData && (
+                            <FinancialChart data={chartData} options={chartOptions} />
+                        )}
+                        {loading && <div>Loading…</div>}
+                        {error && <div style={{ color: "red" }}>{error}</div>}
+                    </div>
+                </div>
+
+                <div
+                    style={{
+                        flex: 1,
+                        backgroundColor: "#181818",
+                        borderRadius: "10px",
+                        padding: "0.75rem 1rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <div>
+                        <h4 style={{ marginTop: 0, marginBottom: "0.5rem" }}>
+                            Position details
+                        </h4>
+                        <div style={{ fontSize: "1rem", lineHeight: 1.5 }}>
+                            <div>
+                                Quantity: <strong>{metrics.quantity}</strong>
+                            </div>
+                            <div>
+                                Avg. Price: <strong>£{metrics.averagePrice.toFixed(2)}</strong>
+                            </div>
+                            <div>
+                                Market value:{" "}
+                                <strong>£{metrics.marketValue.toFixed(2)}</strong>
+                            </div>
+                            <div
+                                style={{
+                                    marginTop: "0.5rem",
+                                    color:
+                                        metrics.pnl > 0
+                                            ? "#48e055"
+                                            : metrics.pnl < 0
+                                            ? "#ff5252"
+                                            : "#ccc",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                P/L: £{formatSigned(metrics.pnl)} (
+                                {formatSigned(metrics.pnlPercent)}%)
+                            </div>
+                        </div>
+                    </div>
+
+                    {currentHolding && (
+                        <div style={{ fontSize: "0.75rem", color: "#aaa" }}>
+                            <div>Type: {currentHolding.type || "-"}</div>
+                            <div>Buy date: {currentHolding.DoP || "-"}</div>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            <div
+                style={{
+                    marginTop: "0.75rem",
+                    background: "#181818",
+                    borderRadius: "10px",
+                    padding: "0.5rem 0.75rem",
+                    maxHeight: "120px",
+                    overflowY: "auto",
+                }}
+            >
+                <div style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>
+                    Portfolio Position
+                </div>
+                <table
+                    style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        fontSize: "0.75rem",
+                    }}
+                >
+                    <thead>
+                        <tr style={{ color: "#9cff66" }}>
+                            <th style={thStyle}>Symbol</th>
+                            <th style={thStyle}>Qty</th>
+                            <th style={thStyle}>Avg</th>
+                            <th style={thStyle}>Last Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {investments.map((inv, i) => {
+                            const isActive = i === selectedIndex;
+                            return (
+                                <tr
+                                    key={i}
+                                    onClick={() => setSelectedIndex(i)}
+                                    style={{
+                                        cursor: "pointer",
+                                        background: isActive ? "#262626" : "transparent",
+                                    }}
+                                >
+                                    <td style={tdStyle}>
+                                        {(inv.name || "").toUpperCase()}
+                                    </td>
+                                    <td style={tdStyle}>{inv.amount}</td>
+                                    <td style={tdStyle}>
+                                        £{Number(inv.avarageValue || 0).toFixed(2)}
+                                    </td>
+                                    <td style={tdStyle}>
+                                        {isActive
+                                            ? `£${metrics.currentPrice.toFixed(2)}`
+                                            : "-"}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    )
+    );
 }
+
+const thStyle = {
+    textAlign: "left",
+    padding: "0.25rem 0.5rem",
+    borderBottom: "1px solid #333",
+};
+
+const tdStyle = {
+    padding: "0.25rem 0.5rem",
+    borderBottom: "1px solid #222",
+};

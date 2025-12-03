@@ -131,6 +131,13 @@ export default function EntryInvestments() {
         setEditIndex(null);
     };
 
+    const buyDate = new Date(newInvestment.DoP);
+    if (buyDate > new Date()) {
+        showWarning("Buy date cannot be in the future.");
+        return;
+    }
+
+
     return (
         <div
             style={{
