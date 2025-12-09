@@ -10,7 +10,7 @@
     "start:backend": "npm run dev --workspace=backend",
     "start:finance": "npm run dev --workspace=frontend-finance-tracker-v2",
     "start:news": "npm run dev --workspace=frontend-stock-news-feed",
-    "dev": "npx concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend-finance-tracker-v2\"",
+    "dev": "npx concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend-finance-tracker-v2\" \"npm run dev --workspace=frontend-stock-news-feed\"",
     "install:all": "npm install --workspaces"
 
   },
