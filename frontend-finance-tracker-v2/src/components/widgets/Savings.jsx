@@ -226,13 +226,12 @@ export default function Savings() {
                         })}
                     </div>
                 </div>
-
-                {!hasSavings && (
+            </div>
+            {!hasSavings && (
                     <div style={{ marginTop: "1rem", color: "#888" }}>
                         No savings found.
                     </div>
                 )}
-            </div>
 
             {hasSavings && (
                 <button
