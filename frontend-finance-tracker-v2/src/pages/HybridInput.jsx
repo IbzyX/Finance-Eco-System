@@ -5,6 +5,23 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 
 export default function Entry() {
     const [hoveredItem, setHoveredItem] = useState(null);
+    const [file, setFile] = useState(null);
+    const [showClassifier, setShowClassifier] = useState(false);
+    const [parsedRows, setParsedRows] = useState([]);
+
+    const handleFileUpload = (pdfFile) => {
+        if (!pdfFile) return;
+
+        setFile(pdfFile);
+
+        const mockparsed = [
+            { description: "Salary", amount: 2500, category: "income" },
+            { description: "Mortage", amount: -900, category: "bill" },
+            { description: "Groceries", amount: -100, category: "expense" },
+        ];
+        setParsedRows(mockparsed);
+        setShowClassifier(true);
+    }
     
     return (
         <div style={{
@@ -68,6 +85,13 @@ export default function Entry() {
                 
                 <p>Upload your bank statement to speed up input process</p>
 
+                <input
+                    type="file"
+                    accept="application/pdf"
+                    style={{ display: "none" }}
+                    id="pdf-upload"
+                    onChange={(e) => handleFileUpload(e.target.files[0])}
+                />
                 <button 
                     style={{
                         marginTop: "1rem",
@@ -81,7 +105,7 @@ export default function Entry() {
                         cursor: "pointer",
                          
                     }}
-                    onClick={""}>
+                    onClick={() => document.getElementById("pdf-upload").click()}>
                     Upload
                 </button>
 
@@ -90,10 +114,76 @@ export default function Entry() {
                     <AiOutlineInfoCircle style={{color: "#555", fontSize:"1.5rem"}} />
                     <span style={{color:"#555", margin: "1rem 0 1rem 0"}}>Please submit as a PDF</span> 
                 </div>
-            </div>         
-        </div>
-           
-        
+            </div>
+           {showClassifier && (
+                <div
+                    style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.8)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 30,
+                    }}
+                >
+                    <div
+                    style={{
+                        background: "#222",
+                        padding: "2rem",
+                        borderRadius: "12px",
+                        width: "500px",
+                        color: "white",
+                    }}
+                    >
+                    <h3 style={{ textAlign: "center", marginBottom: "1rem" }}>
+                        Classify Transactions
+                    </h3>
+
+                    {parsedRows.map((row, i) => (
+                        <div
+                        key={i}
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: "2fr 1fr 1fr",
+                            gap: "0.5rem",
+                            marginBottom: "0.5rem",
+                            alignItems: "center",
+                        }}
+                        >
+                        <span>{row.description}</span>
+                        <span>£{row.amount}</span>
+
+                        <select
+                            value={row.category}
+                            onChange={(e) => updateCategory(i, e.target.value)}
+                        >
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                            <option value="savings">Savings</option>
+                        </select>
+                        </div>
+                    ))}
+
+                    <button
+                        onClick={saveClassifiedData}
+                        style={{
+                        marginTop: "1rem",
+                        width: "100%",
+                        padding: "0.75rem",
+                        background: "#00e676",
+                        border: "none",
+                        borderRadius: "6px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        }}
+                    >
+                        Save Data
+                    </button>
+                    </div>
+                </div>
+            )}
+        </div>     
     )
 }
    
