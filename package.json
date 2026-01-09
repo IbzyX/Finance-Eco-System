@@ -12,9 +12,12 @@
     "start:news": "npm run dev --workspace=frontend-stock-news-feed",
     "dev": "npx concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend-finance-tracker-v2\" \"npm run dev --workspace=frontend-stock-news-feed\"",
     "install:all": "npm install --workspaces"
-
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^5.4.530",
+    "react-router-dom": "^7.11.0"
   }
 }

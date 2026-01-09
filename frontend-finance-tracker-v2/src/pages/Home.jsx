@@ -49,7 +49,7 @@ export default function Home() {
 
         </Link>
 
-        <Link to="http://localhost:5174/" target="blank" style={{
+        <Link to="http://localhost:5173/" target="blank" style={{
           display: "flex",
           flexDirection: "column",
           backgroundColor: hoveredItem === "news-feed" ? "#666" : "#333",

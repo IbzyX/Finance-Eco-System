@@ -67,7 +67,7 @@ export default function Settings() {
 
 
             <h2>Links</h2>
-            <Link to="http://localhost:5174/" className="sidebar-btn logout" target="blank">
+            <Link to="http://localhost:5173/" className="sidebar-btn logout" target="blank">
               Stock News Feed
             </Link>
             <div className="divider"></div>
