@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { showLogout } from "../utils/toast";
+import "./css/Home.css";
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth0();
-  const [hoveredItem, setHoveredItem] = useState(false);
+  const { loginWithRedirect, logout, isAuthenticated, isLoading } = useAuth0();
   
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -15,63 +15,103 @@ export default function Home() {
 
 
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-    }}>
+    <div className="home">
+      {/* - Hidden Navbar - */}
+      <div className="navbar">
 
+        {/* --- Navbar left style --- */}
+        <div className="navbar-left">
+          <img src="./favicon.png" alt="logo" style={{ height: "50px" }} />
+          <h1>Finance Tracker</h1>
+        </div>
 
-      <div style={{ minHeight: "90vh"}}>
-        <h1>Home Page</h1>
-      </div>
-    
-      <div style={{ borderBottom: "2px solid white", width: "80%", margin: "20px" }}></div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", alignItems: "center", justifyContent: "center" }}>
-        <Link to="/dashboard" style={{
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: hoveredItem === "finance-tracker" ? "#666" : "#333",
-          borderRadius: "10px",
-          padding: "0 0 3rem 0",
-          width: "80%", 
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "50vh",
-          minWidth: "15vw",
-          margin: "3rem",
-        }}
-        onMouseEnter={() => setHoveredItem("finance-tracker")}
-        onMouseLeave={() => setHoveredItem(false)}
-        >
-          <h2 style={{fontSize: "1rem"}}>Finance Tracker</h2>
+        {/* --- Navbar right style --- */}
+        <div className="navbar-right">
+          {isAuthenticated ? (
+            <Link to="/dashboard"
+              className="nav-btn">
+              Dashboard
+            </Link>
+            
+          ) : (
 
-        </Link>
-
-        <Link to="http://localhost:5173/" target="blank" style={{
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: hoveredItem === "news-feed" ? "#666" : "#333",
-          borderRadius: "10px",
-          padding: "0 0 3rem 0",
-          width: "80%", 
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "50vh",
-          minWidth: "15vw",
-          margin: "3rem",
-        }}
-        onMouseEnter={() => setHoveredItem("news-feed")}
-        onMouseLeave={() => setHoveredItem(false)}
-        >
-          <h2 style={{fontSize: "1rem"}}>Stock News Feed</h2>
-
-        </Link>
-
+            <button
+              onClick={() =>
+                loginWithRedirect({
+                  appState: {
+                      returnTo: "/dashboard", 
+                  },
+                })
+              }
+              className="nav-btn">
+              Login
+            </button>
+          )}
+        </div>
       </div>
 
+
+      {/* --- CTA section --- */}
+      <div className="CTA">
+        <p className="CTA-heading">
+          Track expenses, categorize spending and <br /> understand your financial habits
+        </p>
+        <p className="CTA-subtext">
+          Understand where your money goes with automated <br /> breakdowns, <br /> Visualize income v expense to make smarter decisions
+        </p>
+        <div className="home-image">
+        {/*<img src=""></img>*/}
+        </div>
+
+        {isAuthenticated ?(
+          <Link to="/dashboard"
+              className="signup">
+              LOGIN 
+            </Link>
+        ):(
+          <button 
+            onClick={() =>
+              loginWithRedirect({
+                appState: {
+                    returnTo: "/dashboard", 
+                },
+              })
+            }
+            className="signup">
+            Sign UP NOW 
+          </button>
+        )}
+        
+      </div>
+
+      
+
+
+      {/* --- ECO-SYSTEM links --- */}
+      <div className="link-grid">
+        <Link to="/dashboard" className="link-btn">
+          <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Finance Tracker</h2>
+
+          <div className="link-img">
+
+          </div>
+          <p className="link-text">
+            Understand where your money <br /> ends up ... 
+          </p>
+        </Link>
+
+        <Link to="http://localhost:5173/" target="blank" className="link-btn">
+          <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Stock News Feed</h2>
+
+          <div className="link-img">
+
+          </div>
+          <p className="link-text">
+            Keep up with the news that <br/> matters ... 
+          </p>
+        </Link>
+
+      </div>
     </div>
-
   );
 }

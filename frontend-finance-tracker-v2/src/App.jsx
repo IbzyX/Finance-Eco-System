@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   const location = useLocation();
-  const hideNavbar = ["/login"].includes(location.pathname);
+  const hideNavbar = ["/login", "/"].includes(location.pathname);
 
   return (
     <>
