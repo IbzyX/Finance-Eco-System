@@ -31,13 +31,14 @@
 .widget:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.35);
-  /*border: 1px solid #00e676;*/
+  border: 1px solid #555;
 }
 
 .widget-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: transparent;
 }
 
 .widget-controls {

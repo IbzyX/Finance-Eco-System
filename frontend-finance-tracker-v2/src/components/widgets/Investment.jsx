@@ -57,7 +57,13 @@ export default function Investments() {
     const fetchStockData = async (holding) => {
         if (!holding) return;
 
-        const symbol = (holding.name || "").trim().toUpperCase();
+        if (!livePrice || isNaN(livePrice)) {
+            setError("Invalid price data from Yahoo");
+            setLoading(false);
+            return;
+        }
+
+        const symbol = (currentHolding?.name || "").trim().toUpperCase();
         if (!symbol) return;
 
         setLoading(true);
@@ -108,8 +114,8 @@ export default function Investments() {
                 result.meta?.regularMarketPrice || closes[closes.length - 1];
             const prevClose = closes[closes.length - 2] || livePrice;
 
-            const quantity = Number(holding.amount) || 0;
-            const averagePrice = Number(holding.avarageValue) || 0;
+            const quantity = Number(currentHolding?.amount) || 0;
+            const averagePrice = Number(currentHolding?.avarageValue) || 0;
 
             const marketValue = livePrice * quantity;
             const pnl = (livePrice - averagePrice) * quantity;
@@ -196,6 +202,7 @@ export default function Investments() {
             </div>
         );
     }
+    const safeFixed = (v, digits = 2) => typeof v === "number" && !isNaN(v) ? v.toFixed(digits) : "0.00";
 
     return (
         <div
@@ -227,7 +234,7 @@ export default function Investments() {
                         <h3>{metrics.symbol}</h3>
                         <div style={{ textAlign: "right", fontSize: "1rem" }}>
                             <div style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
-                                £{metrics.currentPrice.toFixed(2)}
+                                £{safeFixed(metrics.currentPrice)}
                             </div>
                             <div
                                 style={{
@@ -281,11 +288,11 @@ export default function Investments() {
                                 Quantity: <strong>{metrics.quantity}</strong>
                             </div>
                             <div>
-                                Avg. Price: <strong>£{metrics.averagePrice.toFixed(2)}</strong>
+                                Avg. Price: <strong>££{safeFixed(metrics.averagePrice)}</strong>
                             </div>
                             <div>
                                 Market value:{" "}
-                                <strong>£{metrics.marketValue.toFixed(2)}</strong>
+                                <strong>£{safeFixed(metrics.marketValue)}</strong>
                             </div>
                             <div
                                 style={{

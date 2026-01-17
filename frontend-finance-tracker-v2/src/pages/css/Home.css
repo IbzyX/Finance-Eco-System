@@ -39,7 +39,7 @@ h1 {
     transition: all 0.3s ease;
 }
 .nav-btn:hover {
-    background: #444;
+    background: #151388;
     border: 1px solid white;
 }
 
@@ -49,7 +49,7 @@ h1 {
 
 /* -- Home CTA -- */
 .home {
-    background-image: linear-gradient(to top right, #000, #151388);
+    background-image: linear-gradient(to top right, #000, #111, #151388);
 }
 .CTA {
     min-height: 80vh;
@@ -83,12 +83,37 @@ h1 {
 
 .home-image {
     position: absolute;
-    background-color: #333;
     height: 30rem;
     width: 60rem;
-    border-radius: 40px;
     right: 20rem;
     top: 10rem;
+    transform: translateY(-5px) scale(1.02);
+    border-radius: 40px;
+    overflow: hidden;
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 0 25px rgba(151, 9, 92, 0.3);
+}
+.home-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0011ff, #ae00ff, #ff006a);
+    filter: blur(60px);
+    opacity: 1; 
+    animation: ambientSpin 12s linear infinite;
+    z-index: -1;
+}
+.home-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    filter: blur(4px);
+    z-index: 2;
+}
+@keyframes ambientSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 .signup {
     position: absolute;

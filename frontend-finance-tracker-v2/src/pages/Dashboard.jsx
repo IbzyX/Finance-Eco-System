@@ -12,6 +12,7 @@ import TotalWealth from "../components/widgets/TotalWealth";
 import SavingProjection from "../components/widgets/SavingProjection";
 import Income from "../components/widgets/income";
 import Investments from "../components/widgets/Investment";
+import Debt from "../components/widgets/Debt";
 
 import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
@@ -143,7 +144,7 @@ export default function Dashboard() {
             size={size}
             onWidgetChange={(newType) => handleWidgetChange(id, newType)}
           >
-            <p>Debt placeholder</p>
+            <Debt />
           </Widget>
         );
       case "Income":

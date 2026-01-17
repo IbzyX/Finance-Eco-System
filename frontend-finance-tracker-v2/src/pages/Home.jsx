@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { showLogout } from "../utils/toast";
 import "./css/Home.css";
+import DashboardImage from "../Img/DashboardImage.png";
 
 export default function Home() {
   const { loginWithRedirect, logout, isAuthenticated, isLoading } = useAuth0();
@@ -60,7 +61,7 @@ export default function Home() {
           Understand where your money goes with automated <br /> breakdowns, <br /> Visualize income v expense to make smarter decisions
         </p>
         <div className="home-image">
-        {/*<img src=""></img>*/}
+          <img src={DashboardImage} alt="dashboard preview" />
         </div>
 
         {isAuthenticated ?(
