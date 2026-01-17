@@ -28,6 +28,7 @@ export default function Home() {
 
         {/* --- Navbar right style --- */}
         <div className="navbar-right">
+          <a href="#links" className="nav-btn" >Links</a>
           {isAuthenticated ? (
             <Link to="/dashboard"
               className="nav-btn">
@@ -89,30 +90,45 @@ export default function Home() {
 
 
       {/* --- ECO-SYSTEM links --- */}
-      <div className="link-grid">
-        <Link to="/dashboard" className="link-btn">
-          <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Finance Tracker</h2>
+      <section className="links" id="links">
+        <h1>Links</h1>
+        <div className="link-grid">
+          <Link to="/dashboard" className="link-btn glass-card">
+            <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Finance Tracker</h2>
 
-          <div className="link-img">
+            <div className="link-img">
+              <img src={DashboardImage} alt="dashboard preview" />
+            </div>
+            <p className="link-text">
+              Understand where your money <br /> ends up ... 
+            </p>
+          </Link>
 
-          </div>
-          <p className="link-text">
-            Understand where your money <br /> ends up ... 
-          </p>
-        </Link>
+          <Link to="http://localhost:5173/" target="blank" className="link-btn glass-card">
+            <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Stock News Feed</h2>
 
-        <Link to="http://localhost:5173/" target="blank" className="link-btn">
-          <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Stock News Feed</h2>
+            <div className="link-img">
+              <p style={{
+                display:"flex", 
+                justifyContent:"center", 
+                alignContent:"center",
+                fontWeight:"bold",
+                fontSize:"1.5rem", 
+                padding:"80px 0"
+                }}
+              >
+                coming soon!!
+              </p>
 
-          <div className="link-img">
 
-          </div>
-          <p className="link-text">
-            Keep up with the news that <br/> matters ... 
-          </p>
-        </Link>
 
-      </div>
+            </div>
+            <p className="link-text">
+              Keep up with the news that <br/> matters ... 
+            </p>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
