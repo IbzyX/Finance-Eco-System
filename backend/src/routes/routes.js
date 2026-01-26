@@ -1,17 +1,28 @@
 import express from "express";
 import axios from "axios";
 import { checkJwt } from "../middleware/checkJwt.js";
+import { supabase } from "../lib/supabase.js";
+import { getOrCreateUser } from "../lib/getOrCreateUser.js";
 
 const router = express.Router();
 
-router.get("/profile", checkJwt, (req, res) => {
-  res.json({
-    message: "You are authorized",
-    user: req.auth,
-  });
+router.get("/profile", checkJwt, async (req, res) => {
+  try {
+    const user = await getOrCreateUser(req.auth);
+    res.json({
+      message: "You are authorized",
+      user: {
+        id: user.id,
+        email: user.email,
+        auth0_id: user.auth0_id
+      }
+    });
+  } catch (err) {
+    console.error("profile error:", err);
+    res.status(500).json({ error: "Failed to load user" });
+  }
 });
 
-// Temporary in-memory storage replace with DB
 const userTokens = {};
 
 const {
@@ -23,7 +34,6 @@ const {
 
 
 
-// Redirect to TrueLayer login
 router.get("/truelayer/connect", checkJwt, (req, res) => {
   const url =
     `https://auth.truelayer-sandbox.com/?response_type=code` +
@@ -39,10 +49,10 @@ router.get("/truelayer/connect", checkJwt, (req, res) => {
 
 
 
-// Exchange code for token
 router.post("/truelayer/exchange", checkJwt, async (req, res) => {
   const { code } = req.body;
-  const userId = req.auth.sub;
+  const user = await getOrCreateUser(req.auth);
+  const userId = user.id; 
 
   try {
     const response = await axios.post("https://auth.truelayer-sandbox.com/connect/token", {
@@ -61,7 +71,6 @@ router.post("/truelayer/exchange", checkJwt, async (req, res) => {
   }
 });
 
-// Get accounts
 router.get("/truelayer/accounts", checkJwt, async (req, res) => {
   const userId = req.auth.sub;
   const token = userTokens[userId];
@@ -81,7 +90,6 @@ router.get("/truelayer/accounts", checkJwt, async (req, res) => {
   }
 });
 
-// Disconnect
 router.post("/truelayer/disconnect", checkJwt, (req, res) => {
   const userId = req.auth.sub;
   delete userTokens[userId];
