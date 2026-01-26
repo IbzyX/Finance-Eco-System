@@ -67,7 +67,7 @@ export default function Home() {
 
         {isAuthenticated ?(
           <Link to="/dashboard"
-              className="signup">
+              className="signup login">
               LOGIN 
             </Link>
         ):(
@@ -104,7 +104,7 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link to="http://localhost:5173/" target="blank" className="link-btn glass-card">
+          <Link to="http://localhost:5174/" target="blank" className="link-btn glass-card">
             <h2 style={{fontSize: "1.5rem", marginTop: "2rem"}}>Stock News Feed</h2>
 
             <div className="link-img">

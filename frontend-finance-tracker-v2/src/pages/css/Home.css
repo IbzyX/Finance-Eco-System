@@ -129,6 +129,10 @@ h1 {
     border-radius: 20px;
     padding: 10px 15px;
     top: 50rem;
+    left: 53rem;
+}
+.login {
+    top: 50rem;
     left: 55rem;
 }
 .signup:hover {
