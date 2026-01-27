@@ -18,11 +18,30 @@ import "./css/Dashboard.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
+
+
 export default function Dashboard() {
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();  
   const [gridWidth, setGridWidth] = useState(window.innerWidth - 60);
   const [widgetTypes, setWidgetTypes] = useState({});
 
+  useEffect(() => {
+    const syncUser = async () => { 
+      const token = await getAccessTokenSilently();
+      console.log(token);
+
+      await fetch("http://finance.localhost:5173/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    };
+
+    if (isAuthenticated) {
+      syncUser();
+    }
+
+  }, [isAuthenticated]);
 
 
   useEffect(() => {
