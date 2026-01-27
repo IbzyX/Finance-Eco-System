@@ -7,6 +7,8 @@ import { getOrCreateUser } from "../lib/getOrCreateUser.js";
 const router = express.Router();
 
 router.get("/profile", checkJwt, async (req, res) => {
+  console.log("profile hit");
+  console.log("AUTH:", req.auth);
   try {
     const user = await getOrCreateUser(req.auth);
     res.json({
