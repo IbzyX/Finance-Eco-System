@@ -3,8 +3,13 @@ import axios from "axios";
 import { checkJwt } from "../middleware/checkJwt.js";
 import { supabase } from "../lib/supabase.js";
 import { getOrCreateUser } from "../lib/getOrCreateUser.js";
+import billsRoutes from "./bills.routes.js";
 
 const router = express.Router();
+
+router.use("/bills", billsRoutes);
+
+
 
 router.get("/profile", checkJwt, async (req, res) => {
   console.log("profile hit");

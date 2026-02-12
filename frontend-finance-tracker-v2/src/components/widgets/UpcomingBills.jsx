@@ -5,59 +5,63 @@ export default function UpcomingBillsWidget() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    console.log("Loading bills from localStorage...");
-    const savedBills = localStorage.getItem("bills");
+    const fetchBills = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/bills");
+        const data = await res.json();
 
-    if (!savedBills) {
-      console.warn(" No saved bills found in localStorage.");
-      setBills([]);
-      setTotal(0);
-      return;
-    }
+        if(!data || data.length === 0) {
+          setBills([]);
+          setTotal(0);
+          return;
+        }
 
-    try {
-      const parsedBills = JSON.parse(savedBills).map((b) => ({
-        name: b.name || "Unnamed Bill",
-        amount: Number(b.amount) || 0,
-        date: b.date || "",
-        type: b.type || "N/A",
-        recurring: !!b.recurring,
-      }));
+        const parsedBills = data.map((b) => ({
+          id: b.id,
+          name: b.name || "Unnamed Bill",
+          amount: Number(b.amount) || 0,
+          date: b.date || "",
+          type: b.type || "N/A",
+          recurring: !!b.recurring,
+        }));
 
-      const today = new Date();
-      const thirtyDays = new Date();
-      thirtyDays.setDate(today.getDate() + 30);
+        const today = new Date();
+        const thirtyDays = new Date();
+        thirtyDays.setDate(today.getDate() + 30);
 
-      const upcomingBills = parsedBills
-        .map((bill) => {
-          let billDate = new Date(bill.date);
+        const upcomingBills = parsedBills
+          .map((bill) => {
+            let billDate = new Date(bill.date);
 
-          if (bill.recurring) {
-            while (billDate < today) {
-              billDate.setMonth(billDate.getMonth() + 1);
+            if (bill.recurring) {
+              while (billDate <today) {
+                billDate.setMonth(billDate.getMonth() + 1);
+              }
             }
-          }
 
-          return { ...bill, date: billDate.toISOString().split("T")[0] };
-        })
-        .filter((bill) => {
-          const billDate = new Date(bill.date);
-          return billDate >= today && billDate <= thirtyDays;
-        })
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
+            return {...bill, date: billDate.toISOString().split("T")[0] };
+          })
+          .filter((bill) => {
+            const billDate = new Date(bill.date);
+            return billDate >= today && billDate <= thirtyDays;
+          })
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      setBills(upcomingBills);
+        setBills(upcomingBills);
 
-      const totalAmount = upcomingBills.reduce(
-        (sum, b) => sum + Number(b.amount || 0),
-        0
-      );
-      setTotal(totalAmount);
-    } catch (err) {
-      console.error("Failed to parse bills:", err);
-      setBills([]);
-      setTotal(0);
-    }
+        const totalAmount = upcomingBills.reduce(
+          (sum, b) => sum + Number(b.amount || 0),
+          0
+        );
+
+        setTotal(totalAmount);
+      } catch (err) {
+        console.error("Failed to fetch bills: ", err);
+        setBills([]);
+        setTotal(0);
+      }
+    };
+    fetchBills();
   }, []); 
 
   return (
@@ -83,7 +87,7 @@ export default function UpcomingBillsWidget() {
             </thead>
             <tbody>
               {bills.map((bill, i) => (
-                <tr key={i}>
+                <tr key={bill.id}>
                   <td>{bill.name}</td>
                   <td>{bill.date}</td>
                   <td style={{color:"#00e676", fontWeight:"bold"}}>£{Number(bill.amount).toFixed(2)}</td>

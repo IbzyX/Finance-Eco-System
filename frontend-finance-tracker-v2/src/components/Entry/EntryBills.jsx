@@ -9,22 +9,18 @@ export default function EntryBills() {
 
     // -- Load bills 
     useEffect(() => {
-        const savedBills = localStorage.getItem("bills");
-        if (savedBills && savedBills !== "[]" && savedBills !== "null") {
-            setBills(JSON.parse(savedBills));
-        } 
-        else {
-            console.log("No saved bills found.");
-        }
-        setHasLoaded(true);
+        const fetchBills = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/bills");
+                const data = await res.json();
+                setBills(data);
+            } catch (err) {
+                console.error("Error fetching bills: ", err);
+            }
+        };
+        fetchBills();
     }, []);
 
-    // -- Save bills
-    useEffect(() => {
-        if (hasLoaded) {
-            localStorage.setItem("bills", JSON.stringify(bills));
-        }
-    }, [bills, hasLoaded]);
 
     // -- Handle changes
     const handleChange = (e) => {
@@ -33,7 +29,7 @@ export default function EntryBills() {
     };
 
     // -- Add a new bill
-    const addBill = () => {
+    const addBill = async () => {
         if (
             !newBill.name.trim() ||
             !newBill.amount ||
@@ -43,23 +39,48 @@ export default function EntryBills() {
             showWarning("Please fill all fields before adding a bill.");
             return;
         }
+        try {
+            const res = await fetch("http://localhost:5000/api/bills", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...newBill,
+                    amount: Number(newBill.amount),
+                    recurring: newBill.recurring === "yes",
+                }),
+            });
 
-        const updated = [...bills, { ...newBill, amount: Number(newBill.amount), recurring: newBill.recurring == "yes", }];
-        setBills(updated);
-        localStorage.setItem("bills", JSON.stringify(updated));
-        showSuccess(`Bill "${newBill.name}" added successfully!`);
+            const savedBill = await res.json();
+            setBills(prev => [...prev, savedBill]);
 
-        setNewBill({ name: "", amount: "", date: "", type: "", recurring: "no", });
+            showSuccess(`Bill "${newBill.name}" added successfully!`);
+
+            setNewBill({
+                name: "",
+                amount: "",
+                date: "", 
+                type: "",
+                recurring: "no",
+            });
+        } catch (err) {
+            console.error("Error adding bill: ", err);
+        
+        }
     };
 
     // -- Remove bill
-    const removeBill = (index) => {
-        const removedBill = bills[index];
-        const updated = bills.filter((_, i) => i !== index);
-        setBills(updated);
-        localStorage.setItem("bills", JSON.stringify(updated));
-
-        showSuccess(`Bill "${removedBill?.name || "Unknown"}" removed successfully!`);
+    const removeBill = async (id) => {
+        try {
+            await fetch(`http://localhost:5000/api/bills/${id}`, {
+                method: "DELETE",
+            });
+            setBills(prev => prev.filter(bill => bill.id !== id));
+            showSuccess("Bill removed successfully!");
+        } catch (err) {
+            console.error("Error deleting bill: ", err);
+        }
     };
 
     return (
@@ -173,7 +194,7 @@ export default function EntryBills() {
                     </thead>
                     <tbody>
                         {bills.map((bill, i) => (
-                        <tr key={i}>
+                        <tr key={bill.id}>
                             <td>{bill.name}</td>
                             <td>£{Number(bill.amount).toFixed(2)}</td>
                             <td>{bill.date}</td>
@@ -181,7 +202,7 @@ export default function EntryBills() {
                             <td>{bill.recurring ? "Yes" : "No"}</td>
                             <td>
                             <button
-                                onClick={() => removeBill(i)}
+                                onClick={() => removeBill(bill.id)}
                                 style={buttonRemoveStyle}
                             >
                                 <AiOutlineMinus />
