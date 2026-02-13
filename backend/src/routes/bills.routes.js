@@ -1,26 +1,80 @@
 import express from "express";
+import { supabase } from "../lib/supabase.js";
+import { checkJwt } from "../middleware/checkJwt.js";
+import { getOrCreateUser } from "../lib/getOrCreateUser.js";
 
 const router = express.Router();
 
-let bills = [];
+// -- GET USER BILLS 
+router.get("/", checkJwt, async (req, res) => {
+  try {
+    const user = await getOrCreateUser(req.auth);
 
-router.get ("/", (req, res) => {
-    res.json(bills);
+    const { data, error } = await supabase
+      .from("bills")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("date", { ascending: true });
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    console.error("GET bills error:", err);
+    res.status(500).json({ error: "Failed to fetch bills" });
+  }
 });
 
-router.post("/", (req, res) => {
-    const newBill = {
-        id: Date.now().toString(),
-        ...req.body,
-    };
-    bills.push(newBill);
-    res.status(201).json(newBill);
+// -- CREATE BILL 
+router.post("/", checkJwt, async (req, res) => {
+  try {
+    const user = await getOrCreateUser(req.auth);
+
+    const { name, amount, date, type, recurring } = req.body;
+
+    const { data, error } = await supabase
+      .from("bills")
+      .insert([
+        {
+          user_id: user.id,
+          name,
+          amount: Number(amount),
+          date,
+          type: type || "General",
+          recurring: recurring || false,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json(data);
+  } catch (err) {
+    console.error("POST bill error:", err);
+    res.status(500).json({ error: "Failed to create bill" });
+  }
 });
 
-router.delete("/:id", (req, res) => {
+// -- DELETE BILL 
+router.delete("/:id", checkJwt, async (req, res) => {
+  try {
+    const user = await getOrCreateUser(req.auth);
     const { id } = req.params;
-    bills = bills.filter(bill => bill.id !== id);
-    res.json({ success: true});
+
+    const { error } = await supabase
+      .from("bills")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("DELETE bill error:", err);
+    res.status(500).json({ error: "Failed to delete bill" });
+  }
 });
 
 export default router;

@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { showSuccess, showWarning } from "../../utils/toast";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function EntryBills() {
     const [bills, setBills] = useState([]);
     const [newBill, setNewBill] = useState({ name: "", amount: "", date: "", recurring:"no", type: "" });
-    const [hasLoaded, setHasLoaded] = useState(false);
+
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
     // -- Load bills 
     useEffect(() => {
         const fetchBills = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/bills");
+                const token = await getAccessTokenSilently();
+                const res = await fetch("http://localhost:5000/api/bills", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });                
                 const data = await res.json();
                 setBills(data);
             } catch (err) {
                 console.error("Error fetching bills: ", err);
             }
         };
-        fetchBills();
+        if (isAuthenticated) {
+            fetchBills();
+        }
     }, []);
 
 
@@ -40,10 +49,12 @@ export default function EntryBills() {
             return;
         }
         try {
+            const token = await getAccessTokenSilently();
             const res = await fetch("http://localhost:5000/api/bills", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     ...newBill,
@@ -51,6 +62,12 @@ export default function EntryBills() {
                     recurring: newBill.recurring === "yes",
                 }),
             });
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.log("SERVER ERROR:", errorText); 
+                throw new Error("Failed to save bill");
+            }
+
 
             const savedBill = await res.json();
             setBills(prev => [...prev, savedBill]);
@@ -73,8 +90,12 @@ export default function EntryBills() {
     // -- Remove bill
     const removeBill = async (id) => {
         try {
+            const token = await getAccessTokenSilently();
             await fetch(`http://localhost:5000/api/bills/${id}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
             setBills(prev => prev.filter(bill => bill.id !== id));
             showSuccess("Bill removed successfully!");

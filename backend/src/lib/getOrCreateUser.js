@@ -16,7 +16,7 @@ export async function getOrCreateUser(auth0User) {
 
     const { data: newUser, error: insertError } = await supabase
     .from("users")
-    .insert({auth0_id, email})
+    .insert({ auth0_id: auth0id, email })
     .select()
     .single();
 

@@ -1,16 +1,29 @@
 import React, { useEffect, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function UpcomingBillsWidget() {
   const [bills, setBills] = useState([]);
   const [total, setTotal] = useState(0);
+  const { getAccessTokenSilently, isAuthenticated} = useAuth0();
 
   useEffect(() => {
     const fetchBills = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/bills");
+        const token = await getAccessTokenSilently();
+
+        const res = await fetch("http://localhost:5000/api/bills", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch bills");
+        }
+
         const data = await res.json();
 
-        if(!data || data.length === 0) {
+        if (!data || data.length === 0) {
           setBills([]);
           setTotal(0);
           return;
@@ -34,12 +47,12 @@ export default function UpcomingBillsWidget() {
             let billDate = new Date(bill.date);
 
             if (bill.recurring) {
-              while (billDate <today) {
+              while (billDate < today) {
                 billDate.setMonth(billDate.getMonth() + 1);
               }
             }
 
-            return {...bill, date: billDate.toISOString().split("T")[0] };
+            return { ...bill, date: billDate.toISOString().split("T")[0] };
           })
           .filter((bill) => {
             const billDate = new Date(bill.date);
@@ -61,8 +74,12 @@ export default function UpcomingBillsWidget() {
         setTotal(0);
       }
     };
-    fetchBills();
-  }, []); 
+
+    if (isAuthenticated) {
+      fetchBills();
+    }
+  }, [isAuthenticated, getAccessTokenSilently]);
+
 
   return (
     <div>
