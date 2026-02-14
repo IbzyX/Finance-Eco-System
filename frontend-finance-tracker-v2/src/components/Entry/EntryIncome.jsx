@@ -9,22 +9,19 @@ export default function EntryIncome () {
 
     // -- Load Income
     useEffect(() => {
-        const savedIncome = localStorage.getItem("income");
-        if (savedIncome && savedIncome !== "[]" && savedIncome !== "null") {
-            setIncome(JSON.parse(savedIncome));
-        }
-        else {
-            console.log("No saved Incomes found.");
-        }
-        setHasLoaded(true);
+        const fetchIncome = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/income");
+                const data = await res.json();
+                setIncome(data);
+            } catch (err) {
+                console.error("Error fetching income: ", err);
+            }
+        };
+        fetchIncome();
     }, []);
 
-    // -- Save Income
-    useEffect(() => {
-        if (hasLoaded) {
-            localStorage.setItem("income", JSON.stringify(income));
-        }
-    }, [income, hasLoaded]);
+
 
     // -- Handle Change 
     const handleChange = (e) => {
@@ -54,42 +51,64 @@ export default function EntryIncome () {
         }
     };
 
-    const addIncome = () => {
-    if (
-        !newIncome.name.trim() ||
-        !newIncome.amount ||
-        !newIncome.frequency ||
-        !newIncome.currency ||
-        !newIncome.tax
-    ) {
-        showWarning("Please fill all fields before adding income.");
-        return;
-    }
+    const addIncome = async () => {
+        if (
+            !newIncome.name.trim() ||
+            !newIncome.amount ||
+            !newIncome.frequency ||
+            !newIncome.currency ||
+            !newIncome.tax
+        ) {
+            showWarning("Please fill all fields before adding income.");
+            return;
+        }
 
-    const amount = Number(newIncome.amount);
-    const tax = Number(newIncome.tax);
-    const multiplier = getMonthlyMultiplier(newIncome.frequency);
+        try {
+            const amount = Number(newIncome.amount);
+            const tax = Number(newIncome.tax);
+            const multiplier = getMonthlyMultiplier(newIncome.frequency);
 
-    const grossMonthly = amount * multiplier;
-    const netMonthly = grossMonthly * (1 - tax / 100);
+            const grossMonthly = amount * multiplier;
+            const netMonthly = grossMonthly * (1 - tax / 100);
 
-    const updated = [...income, { ...newIncome, amount, tax, grossMonthly, netMonthly }];
-    setIncome(updated);
-    localStorage.setItem("income", JSON.stringify(updated));
-    showSuccess(`Income "${newIncome.name}" added successfully!`);
+            const res = await fetch("http://localhost:5000/api/income",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...newIncome,
+                    amount,
+                    tax,
+                    multiplier,
+                    grossMonthly,
+                    netMonthly,
+                }),
+            });
+            const savedIncome = await res.json();
+            setIncome(prev => [...prev, savedIncome]);
 
-    setNewIncome({ name: "", amount: "", frequency: "", currency: "", tax: "" });
+            showSuccess(`Income "${newIncome.name}" added successfully!`);
+            setNewIncome({ name: "", amount: "", frequency: "", currency: "", tax: "" });
+        } catch (err) {
+            console.error("Error adding income: ", err);
+        }
+
+
     };
 
 
     // -- Remove Income
-    const removeIncome = (index) => {
-        const removeIncome = income[index];
-        const updated = income.filter((_, i) => i !== index);
-        setIncome(updated);
-        localStorage.setItem("income", JSON.stringify(updated));
-
-        showSuccess(`Income "${removeIncome?.name || "Unknown"}" removed successfully! `);
+    const removeIncome = async (id) => {
+        try {
+            await fetch(`http://localhost:5000/api/income/${id}`,{
+                method: "DELETE",
+            });
+            setIncome(prev => prev.filter(income => income.id !== id));
+            showSuccess("Income removed successfully!");
+        } catch (err) {
+            console.log("Error deleting income: ", err);
+        }
     };
 
     return (
@@ -218,7 +237,7 @@ export default function EntryIncome () {
                     </thead>
                     <tbody>
                         {income.map((income, i) => (
-                        <tr key={i}>
+                        <tr key={income.id}>
                             <td>{income.name}</td>
                             <td>{income.currency}{Number(income.amount).toFixed(2)}</td>
                             <td>{income.frequency}</td>
@@ -227,7 +246,7 @@ export default function EntryIncome () {
                             <td>{income.currency}{income.netMonthly?.toFixed(2)}</td>
                             <td>
                             <button
-                                onClick={() => removeIncome(i)}
+                                onClick={() => removeIncome(income.id)}
                                 style={buttonRemoveStyle}
                             >
                                 <AiOutlineMinus />
