@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { showSuccess, showWarning } from "../../utils/toast";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function EntryIncome () {
     const [income, setIncome] = useState([]);
     const [newIncome, setNewIncome] = useState({ name:"", amount:"", frequency:"", currency:"", tax:"" });
-    const [hasLoaded, setHasLoaded] = useState(false);
+    const { getAccessTokenSilently, isAuthenticated} = useAuth0();
 
     // -- Load Income
     useEffect(() => {
         const fetchIncome = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/income");
+                const token = await getAccessTokenSilently();
+                const res = await fetch("http://localhost:5000/api/income", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });                
                 const data = await res.json();
                 setIncome(data);
             } catch (err) {
                 console.error("Error fetching income: ", err);
             }
         };
-        fetchIncome();
+        if (isAuthenticated) {
+            fetchIncome();
+        }
     }, []);
 
 
@@ -71,10 +79,12 @@ export default function EntryIncome () {
             const grossMonthly = amount * multiplier;
             const netMonthly = grossMonthly * (1 - tax / 100);
 
+            const token = await getAccessTokenSilently();
             const res = await fetch("http://localhost:5000/api/income",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     ...newIncome,
@@ -85,6 +95,12 @@ export default function EntryIncome () {
                     netMonthly,
                 }),
             });
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.log("SERVER ERROR:", errorText); 
+                throw new Error("Failed to save income");
+            }
+
             const savedIncome = await res.json();
             setIncome(prev => [...prev, savedIncome]);
 
@@ -100,16 +116,20 @@ export default function EntryIncome () {
 
     // -- Remove Income
     const removeIncome = async (id) => {
-        try {
-            await fetch(`http://localhost:5000/api/income/${id}`,{
-                method: "DELETE",
-            });
-            setIncome(prev => prev.filter(income => income.id !== id));
-            showSuccess("Income removed successfully!");
-        } catch (err) {
-            console.log("Error deleting income: ", err);
-        }
-    };
+            try {
+                const token = await getAccessTokenSilently();
+                await fetch(`http://localhost:5000/api/income/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setIncome(prev => prev.filter(income => income.id !== id));
+                showSuccess("income removed successfully!");
+            } catch (err) {
+                console.error("Error deleting inocme: ", err);
+            }
+        };
 
     return (
         <div
