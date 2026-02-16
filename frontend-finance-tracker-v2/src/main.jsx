@@ -40,7 +40,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     authorizationParams={{
       redirect_uri: window.location.origin,
       audience: "https://finance-tracker-api/",
-      scope: "openid profile email offline_access",
+      scope: "openid profile email "
     }}
     onRedirectCallback={(appState) => {
       const returnTo = appState?.returnTo || window.location.pathname;

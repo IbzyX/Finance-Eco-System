@@ -6,6 +6,6 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    host: 'fianance.localhost'
+    host: 'finance.localhost'
   }
 })

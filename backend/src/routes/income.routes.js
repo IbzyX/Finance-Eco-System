@@ -28,18 +28,52 @@ router.get ("/", checkJwt, async (req, res) => {
 router.post("/", checkJwt, async (req, res) => {
     try {
         const user = await getOrCreateUser(req.auth);
-        const { name, amount, tax, currency, frequency, multiplier } = req.body;
+        const { name, amount, tax, currency, frequency } = req.body;
+
+        const numericAmount = Number(amount);
+        const numericTax = Number(tax);
+
+        const getMonthlyMultiplier = (frequency) => {
+                switch (frequency.toLowerCase()) {
+                    case "daily":
+                        return 30;
+                    case "weekly":
+                        return 4;
+                    case "fortnightly":
+                        return 2;
+                    case "monthly":
+                        return 1;
+                    case "quarterly":
+                        return 1 / 3;
+                    case "biannually":
+                        return 1 / 6;
+                    case "annually":
+                        return 1 / 12;
+                    case "no":
+                    default:
+                        return 0;
+                }
+            };
+
+            const multiplier = getMonthlyMultiplier(frequency);
+            const gross_monthly = numericAmount * multiplier;
+            const net_monthly = gross_monthly * (1 - numericTax / 100);
+
         const { data, error } = await supabase
             .from("income")
             .insert([
                 {
                     user_id: user.id,
                     name,
-                    amount: Number(amount),
-                    tax: Number(tax),
+                    amount: numericAmount,
+                    tax: numericTax,
                     currency,
                     frequency,
-                    multiplier: Number(multiplier),
+                    multiplier,
+                    gross_monthly,
+                    net_monthly,
+                    date: new Date().toISOString(),
+
                 },
             ])
             .select()

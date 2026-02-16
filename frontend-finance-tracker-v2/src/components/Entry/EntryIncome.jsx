@@ -37,27 +37,7 @@ export default function EntryIncome () {
         setNewIncome((prev) => ({ ...prev, [name]: value}));
     };
 
-    const getMonthlyMultiplier = (frequency) => {
-        switch (frequency.toLowerCase()) {
-            case "daily":
-                return 30;
-            case "weekly":
-                return 4;
-            case "fortnightly":
-                return 2;
-            case "monthly":
-                return 1;
-            case "quarterly":
-                return 1 / 3;
-            case "biannually":
-                return 1 / 6;
-            case "annually":
-                return 1 / 12;
-            case "no":
-            default:
-                return 0;
-        }
-    };
+    
 
     const addIncome = async () => {
         if (
@@ -74,10 +54,6 @@ export default function EntryIncome () {
         try {
             const amount = Number(newIncome.amount);
             const tax = Number(newIncome.tax);
-            const multiplier = getMonthlyMultiplier(newIncome.frequency);
-
-            const grossMonthly = amount * multiplier;
-            const netMonthly = grossMonthly * (1 - tax / 100);
 
             const token = await getAccessTokenSilently();
             const res = await fetch("http://localhost:5000/api/income",{
@@ -90,9 +66,9 @@ export default function EntryIncome () {
                     ...newIncome,
                     amount,
                     tax,
-                    multiplier,
-                    grossMonthly,
-                    netMonthly,
+                    currency: newIncome.currency,
+                    frequency: newIncome.frequency,
+                    
                 }),
             });
             if (!res.ok) {
@@ -261,9 +237,9 @@ export default function EntryIncome () {
                             <td>{income.name}</td>
                             <td>{income.currency}{Number(income.amount).toFixed(2)}</td>
                             <td>{income.frequency}</td>
-                            <td>{income.currency}{income.grossMonthly?.toFixed(2)}</td>
+                            <td>{income.currency}{Number(income.gross_monthly).toFixed(2)}</td>
                             <td>{income.tax}%</td>
-                            <td>{income.currency}{income.netMonthly?.toFixed(2)}</td>
+                            <td>{income.currency}{Number(income.net_monthly).toFixed(2)}</td>
                             <td>
                             <button
                                 onClick={() => removeIncome(income.id)}
