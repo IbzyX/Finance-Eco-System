@@ -24,6 +24,7 @@ export default function Dashboard() {
   const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();  
   const [gridWidth, setGridWidth] = useState(window.innerWidth - 60);
   const [widgetTypes, setWidgetTypes] = useState({});
+  const [layout, setLayout] = useState(defaultLayout);
 
   useEffect(() => {
     const syncUser = async () => { 
@@ -43,6 +44,36 @@ export default function Dashboard() {
 
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    const fetchLayout = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+
+        const res = await fetch("http://localhost:5000/api/dashboard_layout", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch layout");
+
+        const data = await res.json();
+
+        if (data?.layout) {
+          setLayout(data.layout);
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchLayout();
+    }
+  }, [isAuthenticated]);
+
+
 
   useEffect(() => {
     const handleResize = () => setGridWidth(window.innerWidth - 60);
@@ -52,9 +83,6 @@ export default function Dashboard() {
 
   if (isLoading) return <div>Loading...</div>;
   if (!isAuthenticated) return <Navigate to="/" />;
-
-  const savedLayout = JSON.parse(localStorage.getItem("dashboardLayout"));
-  const layout = savedLayout || defaultLayout;
 
   const handleWidgetChange = (id, newType) => {
     setWidgetTypes((prev) => ({ ...prev, [id]: newType }));

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import GridLayout from "react-grid-layout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { defaultLayout } from "../utils/defaultLayout";
@@ -19,13 +19,27 @@ import "react-resizable/css/styles.css";
 import "./css/Dashboard.css";
 
 export default function DashboardEdit() {
-    const { isAuthenticated, isLoading } = useAuth0();
-
-    const [layout, setLayout] = useState(() => {
-        return JSON.parse(localStorage.getItem("dashboardLayout")) || defaultLayout;
-    });
-
+    const {getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+    const [layout, setLayout] = useState(defaultLayout);
     const [gridWidth, setGridWidth] = useState(window.innerWidth - 60); // 20px padding each side
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchLayout = async () => {
+            const token = await getAccessTokenSilently();
+
+            const res = await fetch("http://localhost:5000/api/dashboard_layout", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const data = await res.json();
+
+            if (data?.layout) {
+                setLayout(data.layout);
+            }
+        };
+        fetchLayout();
+    }, []);
 
     useEffect(() => {
         const handleResize = () => setGridWidth(window.innerWidth - 60);
@@ -62,9 +76,18 @@ export default function DashboardEdit() {
     // Track active widgets separately
     const [activeWidgets, setActiveWidgets] = useState(allWidgets.map(w => w.id));
 
-    const handleSaveLayout = () => {
-        localStorage.setItem("dashboardLayout", JSON.stringify(layout));
-        sessionStorage.setItem("layoutSaved", "true");
+    const handleSaveLayout = async () => {
+        const token = await getAccessTokenSilently();
+
+        await fetch("http://localhost:5000/api/dashboard_layout", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ layout }),
+        });
+
         navigate("/dashboard");
     };
 
