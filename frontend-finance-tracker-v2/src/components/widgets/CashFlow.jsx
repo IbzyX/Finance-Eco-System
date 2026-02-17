@@ -1,13 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { useAuth0 } from "@auth0/auth0-react";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -15,32 +9,54 @@ export default function CashFlow({ isExpanded = false }) {
   const [totals, setTotals] = useState({ income: 0, expense: 0, bills: 0 });
   const [height, setHeight] = useState(250);
   const containerRef = useRef(null);
-
-  const getData = (key) => JSON.parse(localStorage.getItem(key)) || [];
-  const calculateTotal = (key, field = "amount") => {
-    const items = getData(key);
-    return items.reduce((sum, item) => sum + (parseFloat(item[field]) || 0), 0);
-  };
-
-
-  const updateTotals = () => {
-    setTotals({
-      income: calculateTotal("income", "netMonthly"),
-      expense: calculateTotal("expense", "totalAmount"),
-      bills: calculateTotal("bills", "amount"),
-    });
-  };
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   useEffect(() => {
-    updateTotals();
-    const handleStorageChange = () => updateTotals();
-    window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(updateTotals, 3000);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("storage", handleStorageChange);
+    const fetchCashFlow = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+
+        // -- Fetch income
+        const incomeRes = await fetch("http://localhost:5000/api/income", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const incomeData = await incomeRes.json();
+
+        // -- Fetch Bills
+        const billsRes = await fetch("http://localhost:5000/api/bills", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const billsData = await billsRes.json();
+
+        // -- Fetch Expense
+        //
+        //
+
+        const totalIncome = incomeData.reduce(
+          (sum, item) => sum + (Number(item.net_monthly) || 0),
+          0
+        );
+
+        const totalBills = billsData.reduce(
+          (sum, item) => sum + (Number(item.amount) || 0),
+          0
+        );
+
+        setTotals({
+          income: totalIncome,
+          expense: 0,
+          bills: totalBills,
+        });
+      } catch (err) {
+        console.error("Failed to fetch cashFlow: ", err);
+      }
     };
-  }, []);
+
+    if (isAuthenticated) {
+      fetchCashFlow();
+    }
+  }, [isAuthenticated]);
+
 
   useEffect(() => {
     if (!containerRef.current) return;

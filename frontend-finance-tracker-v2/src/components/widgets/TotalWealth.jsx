@@ -1,9 +1,50 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function TotalWealth() {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+
+    useEffect(() => {
+        const fetchTotalWealth = async () => {
+            try {
+                const token = await getAccessTokenSilently();
+
+                // -- Fetch income
+                const incomeRes = await fetch("http://localhost:5000/api/income", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const incomeData = await incomeRes.json();
+                
+                // -- Fetch savings
+
+
+
+                // -- Fetch investments
+
+
+                const totalIncome = incomeData.reduce(
+                    (sum, item) => sum + (Number(item.net_monthly) || 0),
+                    0
+                );
+
+                setTotals({
+                    income: totalIncome,
+                    savings: 0,
+                    investments: 0,
+                });
+            } catch (err) {
+                console.error("Failed to fetch total wealth: ", err);
+            }
+        };
+
+        if(isAuthenticated) {
+            fetchTotalWealth();
+        }
+    }, [isAuthenticated]);
+    
 
     const [totals, setTotals] = useState({
         income: 0,
@@ -11,38 +52,6 @@ export default function TotalWealth() {
         investments: 0,
     });
 
-    const loadTotals = () => {
-        const income =
-        JSON.parse(localStorage.getItem("income"))?.reduce(
-            (sum, entry) => sum + (parseFloat(entry.amount) || 0),
-            0
-        ) || 0;
-
-        const savingEntries = JSON.parse(localStorage.getItem("saving")) || [];
-        const totalSavings = savingEntries.reduce(
-        (sum, s) => sum + (parseFloat(s.initialAmount) || 0),
-        0
-        );
-
-        const investments =
-        JSON.parse(localStorage.getItem("investments"))?.reduce(
-            (sum, entry) => sum + (parseFloat(entry.stockAmount) || 0),
-            0
-        ) || 0;
-
-        setTotals({
-        income,
-        savings: totalSavings,
-        investments,
-        });
-    };
-
-    useEffect(() => {
-        loadTotals();
-        const handleStorage = () => loadTotals();
-        window.addEventListener("storage", handleStorage);
-        return () => window.removeEventListener("storage", handleStorage);
-    }, []);
 
     useEffect(() => {
         if (!canvasRef.current) return;
