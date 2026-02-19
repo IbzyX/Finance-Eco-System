@@ -1,23 +1,39 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useAuth0 } from "@auth0/auth0-react";
+
 
 export default function SavingsProjection() {
     const chartRef = useRef(null);
     const canvasRef = useRef(null);
-
     const [savingsList, setSavingsList] = useState([]);
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+
 
     useEffect(() => {
-        const load = () => {
-            const data = JSON.parse(localStorage.getItem("saving")) || [];
-            setSavingsList(Array.isArray(data) ? data : []);
+        const fetchSavings = async () => {
+            try {
+                const token = await getAccessTokenSilently();
+
+                const res = await fetch("http://localhost:5000/api/savings", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch savings");
+
+                const data = await res.json();
+                setSavingsList(data || []);
+            } catch (err) {
+                console.error("Error fetching savings:", err);
+            }
         };
 
-        load();
-
-        window.addEventListener("storage", load);
-        return () => window.removeEventListener("storage", load);
-    }, []);
+        if (isAuthenticated) {
+            fetchSavings();
+        }
+    }, [isAuthenticated]);
 
     const intervalToMonthly = {
         no: 0,

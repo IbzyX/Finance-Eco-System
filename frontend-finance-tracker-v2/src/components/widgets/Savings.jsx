@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Widget.css";
+import { useAuth0 } from "@auth0/auth0-react";
+
 
 export default function Savings() {
     const [savingsList, setSavingsList] = useState([]);
     const [index, setIndex] = useState(0);
     const circleRef = useRef(null);
+    const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+    
 
     const formatDate = (dateStr) => {
         if (!dateStr || !dateStr.includes("-")) return dateStr;
@@ -12,18 +16,34 @@ export default function Savings() {
         return `${d}/${m}/${y}`;
     };
 
-    const loadSavings = () => {
-        const data = JSON.parse(localStorage.getItem("saving"));
-        if (Array.isArray(data)) setSavingsList(data);
-        else setSavingsList([]);
-    };
-
     useEffect(() => {
-        loadSavings();
-        const onStorage = () => loadSavings();
-        window.addEventListener("storage", onStorage);
-        return () => window.removeEventListener("storage", onStorage);
-    }, []);
+        const fetchSavings = async () => {
+            try {
+                const token = await getAccessTokenSilently();
+
+                const res = await fetch("http://localhost:5000/api/savings", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch savings");
+
+                const data = await res.json();
+                setSavingsList(data || []);
+            } catch (err) {
+                console.error("Error fetching savings:", err);
+            }
+        };
+
+        if (isAuthenticated) {
+            fetchSavings();
+        }
+    }, [isAuthenticated]);
+
+
+
+
 
     const safeIndex =
         savingsList.length === 0

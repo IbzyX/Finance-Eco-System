@@ -19,7 +19,10 @@ export default function TotalWealth() {
                 const incomeData = await incomeRes.json();
                 
                 // -- Fetch savings
-
+                const savingsRes = await fetch("http://localhost:5000/api/savings", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const saingsData = await savingsRes.json();
 
 
                 // -- Fetch investments
@@ -29,10 +32,14 @@ export default function TotalWealth() {
                     (sum, item) => sum + (Number(item.net_monthly) || 0),
                     0
                 );
+                const totalSaivngs = saingsData.reduce(
+                    (sum, item) => sum + (Number(item.initialAmount) || 0),
+                    0
+                );
 
                 setTotals({
                     income: totalIncome,
-                    savings: 0,
+                    savings: totalSaivngs,
                     investments: 0,
                 });
             } catch (err) {

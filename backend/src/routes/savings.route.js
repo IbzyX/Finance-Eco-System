@@ -12,7 +12,7 @@ router.get("/", checkJwt, async (req, res)  => {
             .from("savings")
             .select("*")
             .eq("user_id", user.id)
-            .order("date", { ascending: true });
+            .order("targetDate", { ascending: true });
         
         if (error) throw error;
 
