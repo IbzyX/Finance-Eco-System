@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { showSuccess, showWarning } from "../../utils/toast";
+import { useAuth0 } from "@auth0/auth0-react";
 import "../../pages/css/EntryForm.css";
 
 export default function EntrySavings() {
@@ -15,28 +16,42 @@ export default function EntrySavings() {
     targetAmount: "",
     aer: "",
   });
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
+
+  // -- Load savings
   useEffect(() => {
-    const savedSaving = localStorage.getItem("saving");
-    if (savedSaving && savedSaving !== "[]" && savedSaving !== "null") {
-      setSaving(JSON.parse(savedSaving));
+    const fetchSavings = async () => {
+      try { 
+        const token = await getAccessTokenSilently();
+        const res = await fetch("http://localhost:5000/api/savings", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        setSaving(data);
+      } catch (err) {
+        console.error("error fetching savings: ", err);
+      }
+    };
+    if (isAuthenticated) {
+      fetchSavings();
     }
-    setHasLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (hasLoaded) {
-      localStorage.setItem("saving", JSON.stringify(saving));
-    }
-  }, [saving, hasLoaded]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewSaving((prev) => ({ ...prev, [name]: value }));
   };
 
-  const addSaving = () => {
+
+
+  // -- add new savings
+  const addSaving = async () => {
     if (
       !newSaving.goal.trim() ||
       !newSaving.startDate ||
@@ -51,38 +66,67 @@ export default function EntrySavings() {
       return;
     }
 
-    const updated = [...saving, { ...newSaving }];
-    setSaving(updated);
-    localStorage.setItem("saving", JSON.stringify(updated));
+    try {
+      const token = await getAccessTokenSilently();
+      const res = await fetch("http://localhost:5000/api/savings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...newSaving,
+          startDate: newSaving.startDate,
+          initialAmount: newSaving.initialAmount,
+          contributionInterval: newSaving.contributionInterval,
+          contributionAmount: newSaving.contributionAmount,
+          targetDate: newSaving.targetDate,
+          targetAmount: newSaving.targetAmount,
+          aer: newSaving.aer,
+        }),
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.log("SERVER ERROR:", errorText);
+        throw new Error("Failed to save Savings");
+      }
+      const savedSavings = await res.json();
+      setSaving(prev => [...prev, savedSavings]);
 
-    const summary = {
-      amount: Number(newSaving.initialAmount),
-      goalAmount: Number(newSaving.targetAmount),
-      goalDate: newSaving.targetDate,
-    };
+      showSuccess(`Savings "${newSaving.goal}" added successfully!`);
 
-    localStorage.setItem("savings", JSON.stringify(summary));
-
-    showSuccess(`Savings "${newSaving.goal}" added successfully!`);
-
-    setNewSaving({
-      goal: "",
-      startDate: "",
-      initialAmount: "",
-      contributionInterval: "",
-      contributionAmount: "",
-      targetDate: "",
-      targetAmount: "",
-      aer: "",
-    });
+        setNewSaving({
+          goal: "",
+          startDate: "",
+          initialAmount: "",
+          contributionInterval: "",
+          contributionAmount: "",
+          targetDate: "",
+          targetAmount: "",
+          aer: "",
+        });
+    
+    } catch (err) {
+      console.error("Error adding savings: ", err);
+    }
   };
 
-  const removeSaving = (index) => {
-    const removedSaving = saving[index];
-    const updated = saving.filter((_, i) => i !== index);
-    setSaving(updated);
-    localStorage.setItem("saving", JSON.stringify(updated));
-    showSuccess(`Savings "${removedSaving?.goal || "Unknown"}" removed successfully.`);
+
+  // -- delete savings 
+  const removeSaving = async (id) => {
+    try {
+      const token = await getAccessTokenSilently();
+      await fetch(`http://localhost:5000/api/savings/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSaving(prev => prev.filter(saving => saving.id !== id));
+      showSuccess("savings removed successfully!");
+    } catch (err) {
+        console.error("Error deleting saving: ", err);
+    }
   };
 
   return (
@@ -233,7 +277,7 @@ export default function EntrySavings() {
           </thead>
           <tbody>
             {saving.map((saving, i) => (
-              <tr key={i}>
+              <tr key={saving.id}>
                 <td>{saving.goal}</td>
                 <td>{saving.startDate}</td>
                 <td>£{saving.initialAmount}</td>
@@ -244,7 +288,7 @@ export default function EntrySavings() {
                 <td>{saving.aer}</td>
                 <td>
                   <button
-                    onClick={() => removeSaving(i)}
+                    onClick={() => removeSaving(saving.id)}
                     style={buttonRemoveStyle}
                   >
                     <AiOutlineMinus />

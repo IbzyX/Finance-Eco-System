@@ -6,12 +6,14 @@ import { getOrCreateUser } from "../lib/getOrCreateUser.js";
 import billsRoutes from "./bills.routes.js";
 import incomeRoutes from  "./income.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
+import savingsRoutes from "./savings.route.js";
 
 const router = express.Router();
 
 router.use("/bills", billsRoutes);
 router.use("/income", incomeRoutes);
 router.use("/dashboard_layout", dashboardRoutes);
+router.use("/savings", savingsRoutes);
 
 
 
