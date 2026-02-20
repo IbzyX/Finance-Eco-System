@@ -29,8 +29,12 @@ export default function CashFlow({ isExpanded = false }) {
         const billsData = await billsRes.json();
 
         // -- Fetch Expense
-        //
-        //
+        const expenseRes = await fetch("http://localhost:5000/api/expense", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const expenseData = await expenseRes.json();
+
+
 
         const totalIncome = incomeData.reduce(
           (sum, item) => sum + (Number(item.net_monthly) || 0),
@@ -42,9 +46,14 @@ export default function CashFlow({ isExpanded = false }) {
           0
         );
 
+        const totalExpense = expenseData.reduce(
+          (sum, item) => sum + (Number(item.amount) || 0),
+          0
+        );
+
         setTotals({
           income: totalIncome,
-          expense: 0,
+          expense: totalExpense,
           bills: totalBills,
         });
       } catch (err) {
