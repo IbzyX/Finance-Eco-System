@@ -1,27 +1,74 @@
 import express from "express";
+import { supabase } from "../lib/supabase.js";
+import { checkJwt } from "../middleware/checkJwt.js";
+import { getOrCreateUser } from "../lib/getOrCreateUser.js";
 
 const router = express.Router();
 
-let expense = [];
 
-router.get("/", (req, res) => {
-    res.json(expense);
+router.get("/", checkJwt, async (req, res) => {
+    try { 
+        const user = await getOrCreateUser(req.auth);
+
+        const { data, error } = await supabase
+            .from("expense")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("date", { ascending: true });
+        
+        if (error) throw error;
+        
+        res.json(data);
+    } catch (err) { 
+        console.error("GET expense error: ", err);
+        res.status(500).json({ error: "Failed to fetch expense" });
+    }
 });
 
-router.post("/", (req,res) => {
-    const newExpense = { 
-        id: Date.now().toString(),
-        ...req.body,
-    };
-    expense.push(newExpense);
-    res.status(201).json(newExpense);
+router.post("/", checkJwt, async (req,res) => {
+    try {
+        const user = await getOrCreateUser(req.auth);
+        const { name, amount, date, reoccurring } = req.body;
+
+        const { data, error } = await supabase
+            .from("expense")
+            .insert([
+                {
+                    user_id: user.id,
+                    name,
+                    amount: Number(amount),
+                    date,
+                    reoccurring: Number(reoccurring),
+                },
+            ])
+            .select()
+            .single();
+        if (error) throw error;
+        res.status(201).json(data);
+    } catch (err) {
+        console.error("POST expense error: ", err);
+        res.status(500).json({ error: "Failed to create expense "});
+    }
 });
 
-router.delete("/:id", (req,res) => {
-    const { id } = req.params;
-    expense = expense.filter(expense => expense.id !== id);
 
-    res.json({ success: true });
+router.delete("/:id", checkJwt, async (req,res) => {
+    try {
+        const user = await getOrCreateUser(req.auth);
+        const { id } = req.params;
+
+        const { error } = await supabase
+            .from("expense")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", user.id);
+
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) { 
+        console.error("DELETE expense error: ", err);
+        res.status(500).json({ error: "Failed to delete expense" });
+    }
 });
 
 export default router;

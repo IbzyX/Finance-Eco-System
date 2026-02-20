@@ -11,14 +11,21 @@ export default function EntryExpense () {
     useEffect(() => {
         const fetchExpense = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/expense");
+                const token = await getAccessTokenSilently();
+                const res = await fetch("http://localhost:5000/api/expense", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 const data = await res.json();
                 setExpense(data);
             } catch (err) {
                 console.error("Failed to fetch expense: ", err);
             }
         };
-        fetchExpense();
+        if (isAuthenticated) {
+            fetchExpense();
+        }
     }, []);
 
 
@@ -41,10 +48,12 @@ export default function EntryExpense () {
         }
         
         try {
+            const token = await getAccessTokenSilently();
             const res = await fetch("http://localhost:5000/api/expense",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     ...newExpense,
@@ -52,6 +61,12 @@ export default function EntryExpense () {
                     reoccurring: Number(newExpense.reoccurring),
                 }),
             });
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.log("SERVER ERROR:", errorText);
+                throw new Error("Failed to save expense");
+            }
+
             const savedExpense = await res.json();
             setExpense(prev => [...prev, savedExpense]);
             showSuccess(`Expense "${newExpense.name}" added successfully!`);
@@ -65,8 +80,12 @@ export default function EntryExpense () {
 
     const removeExpense = async (id) => {
         try {
+            const token = getAccessTokenSilently();
             await fetch(`http://localhost:5000/api/expense/${id}`, {
                 method: "DELETE",
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                }
             });
             setExpense(prev => prev.filter(expense => expense.id !== id));
             showSuccess("Expense removed successfully!");
