@@ -16,6 +16,7 @@ export default function EntrySavings() {
     targetDate: "",
     targetAmount: "",
     aer: "",
+    totalAmount:"",
   });
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
@@ -298,6 +299,7 @@ export default function EntrySavings() {
               <th>Target<br/>Date</th>
               <th>Target<br/>Amount</th>
               <th>AER (%)</th>
+              <th>Total Amount</th>
               <th></th>
             </tr>
           </thead>
@@ -312,6 +314,7 @@ export default function EntrySavings() {
                 <td>{saving.targetDate}</td>
                 <td>£{saving.targetAmount}</td>
                 <td>{saving.aer}</td>
+                <td>£{saving.totalAmount}</td>
                 <td>
                   <button
                     onClick={() => setEditingSavings(saving)}

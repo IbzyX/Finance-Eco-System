@@ -33,7 +33,7 @@ export default function TotalWealth() {
                     0
                 );
                 const totalSaivngs = saingsData.reduce(
-                    (sum, item) => sum + (Number(item.initialAmount) || 0),
+                    (sum, item) => sum + (Number(item.totalAmount) || 0),
                     0
                 );
 

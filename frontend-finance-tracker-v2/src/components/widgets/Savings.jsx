@@ -53,7 +53,7 @@ export default function Savings() {
     const current = savingsList[safeIndex];
     const hasSavings = !!current;
 
-    const amount = hasSavings ? Number(current.initialAmount) : 0;
+    const amount = hasSavings ? Number(current.totalAmount) : 0;
     const goalAmount = hasSavings ? Number(current.targetAmount) : 0;
     const goalDate = hasSavings ? current.targetDate : null;
     const goalName = hasSavings ? current.goal : "Savings";
@@ -97,7 +97,7 @@ export default function Savings() {
         (intervalToMonthly[current?.contributionInterval] || 0);
 
     const totalProjected =
-        Number(current?.initialAmount) +
+        Number(current?.totalAmount) +
         contributionMonthly * monthsUntilGoal;
 
     const goalAchievable = totalProjected >= goalAmount;

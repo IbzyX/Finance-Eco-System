@@ -16,7 +16,43 @@ router.get("/", checkJwt, async (req, res)  => {
         
         if (error) throw error;
 
-        res.json(data);
+        const now = new Date();
+        const savings = data.map((saving) => {
+            const now = new Date();
+            const start = new Date(saving.startDate); 
+            const msPassed = now - start;
+            const daysPassed = Math.floor(msPassed / (1000 * 60 * 60 * 24));
+
+            const intervalMap = {
+                no: 0,
+                daily: 1,
+                weekly: 7,
+                fortnightly: 14,
+                monthly: 30,
+                quarterly: 90,
+                biannually: 182,
+                annually: 365,
+            };
+
+            const intervalKey = saving.contributionInterval?.toLowerCase().trim();
+            const intervalDays = intervalMap[intervalKey] || 0;
+
+            const intervalPassed =
+                intervalDays > 0 ? Math.floor(daysPassed / intervalDays) : 0;
+
+            const totalAmount =
+                Number(saving.initialAmount) +
+                intervalPassed * Number(saving.contributionAmount);
+
+            return {
+                ...saving,
+                totalAmount,
+                intervalPassed,
+            };
+        });
+
+
+        res.json(savings);
     } catch (err) {
         console.error("GET savings error: ", err);
         res.status(500).json({ error: "Failed to fetch Savings " });
