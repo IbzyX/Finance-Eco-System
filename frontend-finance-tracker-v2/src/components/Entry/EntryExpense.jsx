@@ -1,36 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { showSuccess, showWarning } from "../../utils/toast";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
-
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function EntryExpense () {
     const [expense, setExpense] = useState([]);
     const [newExpense, setNewExpense] = useState({ name:"", amount:"", date:"", reoccurring:""});
-    const [hasLoaded, setHasLoaded] = useState(false);
+    const { getAccessTokenSilently, isAuthenticated} = useAuth0();
 
     useEffect(() => {
-        const savedExpense = localStorage.getItem("expense");
-        if (savedExpense && savedExpense !== "[]" && savedExpense !== "null") {
-            setExpense(JSON.parse(savedExpense));
-        }
-        else {
-            console.log("no saved Expense found.");
-        }
-        setHasLoaded(true);
+        const fetchExpense = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/expense");
+                const data = await res.json();
+                setExpense(data);
+            } catch (err) {
+                console.error("Failed to fetch expense: ", err);
+            }
+        };
+        fetchExpense();
     }, []);
 
-    useEffect(() => {
-        if (hasLoaded) {
-            localStorage.setItem("expense", JSON.stringify(expense));
-        }
-    }, [expense, hasLoaded]);
+
+    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNewExpense((prev) => ({ ...prev, [name]: value}));
     };
 
-    const addExpense = () => {
+    const addExpense = async () => {
         if (
             !newExpense.name.trim() ||
             !newExpense.amount ||
@@ -40,31 +39,40 @@ export default function EntryExpense () {
             showWarning("Please fill all fields before adding Expense.");
             return;
         }
+        
+        try {
+            const res = await fetch("http://localhost:5000/api/expense",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...newExpense,
+                    amount: Number(newExpense.amount),
+                    reoccurring: Number(newExpense.reoccurring),
+                }),
+            });
+            const savedExpense = await res.json();
+            setExpense(prev => [...prev, savedExpense]);
+            showSuccess(`Expense "${newExpense.name}" added successfully!`);
 
-        const amount = Number(newExpense.amount);
-        const reoccurring = Number(newExpense.reoccurring);
-        const totalAmount = amount * reoccurring;
-
-        const updated = [
-            ...expense,
-            { ...newExpense, amount, reoccurring, totalAmount },
-        ];
-
-        setExpense(updated);
-        localStorage.setItem("expense", JSON.stringify(updated));
-        showSuccess(`Expense "${newExpense.name}" added successfully!`);
-
-        setNewExpense({ name: "", amount: "", date: "", reoccurring: "", totalAmount:"" });
+            setNewExpense({ name: "", amount: "", date: "", reoccurring: "", totalAmount:"" });
+        } catch (err) {
+            console.error("Error adding expense: ", err);
+        }
     };
 
 
-    const removeExpense = (index) => {
-        const removeExpense = expense[index];
-        const updated = expense.filter((_,i) => i !== index);
-        setExpense(updated);
-        localStorage.setItem("expense", JSON.stringify(updated));
-
-        showSuccess(`Expense "${removeExpense?.name || "Unknown" }" removed successfully. `);
+    const removeExpense = async (id) => {
+        try {
+            await fetch(`http://localhost:5000/api/expense/${id}`, {
+                method: "DELETE",
+            });
+            setExpense(prev => prev.filter(expense => expense.id !== id));
+            showSuccess("Expense removed successfully!");
+        } catch (err) {
+            console.error("Error deleting expense: ", err);
+        }
     };
 
 
@@ -159,7 +167,7 @@ export default function EntryExpense () {
                     </thead>
                     <tbody>
                         {expense.map((expense, i) => (
-                        <tr key={i}>
+                        <tr key={expense.id}>
                             <td>{expense.name}</td>
                             <td>{Number(expense.amount).toFixed(2)}</td>
                             <td>{expense.date}</td>
@@ -167,7 +175,7 @@ export default function EntryExpense () {
                             <td>£{(expense.amount * expense.reoccurring).toFixed(2)}</td>
                             <td>
                             <button
-                                onClick={() => removeExpense(i)}
+                                onClick={() => removeExpense(expense.id)}
                                 style={buttonRemoveStyle}
                             >
                                 <AiOutlineMinus />
