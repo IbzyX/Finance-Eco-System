@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineMinus, AiOutlineEdit } from "react-icons/ai";
 import { showSuccess, showWarning } from "../../utils/toast";
 import { useAuth0 } from "@auth0/auth0-react";
 import "../../pages/css/EntryForm.css";
 
 export default function EntrySavings() {
   const [saving, setSaving] = useState([]);
+  const [editingSavings, setEditingSavings ] = useState(null);
   const [newSaving, setNewSaving] = useState({
     goal: "",
     startDate: "",
@@ -127,6 +128,31 @@ export default function EntrySavings() {
     } catch (err) {
         console.error("Error deleting saving: ", err);
     }
+  };
+
+  const handleUpdateSaving = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      const res = await fetch(`http://localhost:5000/api/savings/${editingSavings.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editingSavings),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update");
+      const updated = await res.json();
+
+      setSaving((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+      showSuccess("Savings updated successfully!");
+      setEditingSavings(null);
+    } catch (err) {
+      console.error("Update Error: ", err);
+    }
+    
   };
 
   return (
@@ -288,6 +314,13 @@ export default function EntrySavings() {
                 <td>{saving.aer}</td>
                 <td>
                   <button
+                    onClick={() => setEditingSavings(saving)}
+                    style={buttonEditStyle}
+                  >
+                    <AiOutlineEdit />
+                  </button>
+
+                  <button
                     onClick={() => removeSaving(saving.id)}
                     style={buttonRemoveStyle}
                   >
@@ -303,6 +336,150 @@ export default function EntrySavings() {
           No Saving added yet.
         </p>
       )}
+
+      {editingSavings && (
+        <div style={overlayStyle}>
+          <div style={modalStyle}>
+            <h3 style={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              alignContent: "center", 
+              fontSize: "1.25rem",
+            }}>
+              Edit Savings
+              
+              <button
+                onClick={() => setEditingSavings(null)}
+                style={{ 
+                  gap:"2rem", 
+                  fontSize: "1.25rem", 
+                  color: "red", 
+                  backgroundColor: "#1e1e1e", 
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                ✕
+              </button>
+
+            </h3>
+            
+
+            <div style={formGroupStyle}>
+              <label>Goal</label>
+              <input
+                type="text"
+                value={editingSavings.goal}
+                onChange={(e) => setEditingSavings({ ...editingSavings, goal: e.target.vaule })}
+                style={inputStyle}
+              />
+            </div>
+            
+            <div style={formGroupStyle}>
+            <label>Start Date</label>
+            <input  
+              type="date"
+              value={editingSavings.startDate}
+              onChange={(e) => setEditingSavings({ ...editingSavings, startDate: e.target.value })}
+              style={inputStyle}
+            />
+            </div>
+
+            <div style={formGroupStyle}>
+            <label>Ininial Amount</label>
+            <input  
+              type="number"
+              value={editingSavings.initialAmount}
+              onChange={(e) => setEditingSavings({ ...editingSavings, initialAmount: e.target.value })}
+              style={inputStyle}
+            />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label>Contribution Interval</label>
+              <select  
+                value={editingSavings.contributionInterval}
+                onChange={(e) => setEditingSavings({ ...editingSavings, contributionInterval: e.target.value })}
+                style={{
+                  ...inputStyle,
+                  backgroundColor: "#1e1e1e",
+                  borderRadius: "5px",
+                  color: "white",
+                  textAlign: "center",
+                }}
+              >
+                <option value="">Contribution Intervals</option>
+                <option value="no">One-off</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="fortnightly">Fortnightly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="biannually">Bi-Annually</option>
+                <option value="annually">Annually</option>
+              </select>
+            </div>
+
+            <div style={formGroupStyle}>
+            <label>Contribution Amount</label>
+            <input  
+              type="number"
+              value={editingSavings.contributionAmount}
+              onChange={(e) => setEditingSavings({ ...editingSavings, contributionAmount: e.target.value })}
+              style={inputStyle}
+            />
+            </div>
+
+            <div style={formGroupStyle}>
+            <label>Target Date</label>
+            <input  
+              type="date"
+              value={editingSavings.targetDate}
+              onChange={(e) => setEditingSavings({ ...editingSavings, targetDate: e.target.value })}
+              style={inputStyle}
+            />
+            </div>
+
+            <div style={formGroupStyle}>
+            <label>Target Amount</label>
+            <input  
+              type="number"
+              value={editingSavings.targetAmount}
+              onChange={(e) => setEditingSavings({ ...editingSavings, targetAmount: e.target.value })}
+              style={inputStyle}
+            />
+            </div>
+
+            <div style={formGroupStyle}>
+            <label>AER %</label>
+            <input  
+              type="number"
+              value={editingSavings.aer}
+              onChange={(e) => setEditingSavings({ ...editingSavings, aer: e.target.value })}
+              style={inputStyle}
+            />
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "center", alignItems:"center", gap: "10px", marginTop: "20px" }}>
+              <button onClick={handleUpdateSaving} style={{
+                backgroundColor: "#9cff66",
+                border: "#000",
+                borderRadius: "20px",
+                padding: "10px 20px",
+                fontWeight: "bold",
+                color: "#000",
+                fontSize: "1.2rem",
+                cursor: "pointer",
+              }}>
+                Save
+              </button>
+
+              
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -325,6 +502,18 @@ borderCollapse: "collapse",
 textAlign: "center",
 justifyContent: "center",
 color: "white"
+};
+
+const buttonEditStyle = {
+  backgroundColor: "#6ce5e8",
+  border: "none",
+  borderRadius: "50%",
+  color: "#000",
+  fontSize: "1.2rem",
+  width: "30px",
+  height: "30px",
+  cursor: "pointer",
+  marginRight: "5px",
 };
 
 const buttonAddStyle = {
@@ -350,4 +539,36 @@ const buttonRemoveStyle = {
   width: "30px",
   height: "30px",
   cursor: "pointer",
+};
+
+const overlayStyle = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundColor: "rgba(0,0,0,0.7)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+};
+
+const modalStyle = {
+  backgroundColor: "#1e1e1e",
+  padding: "2rem",
+  borderRadius: "15px",
+  width: "400px",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const formGroupStyle = {
+  display: "flex",
+  flexDirection: "column",
+  marginBottom: "12px",
+  textAlign: "left",
+  color: "#9cff66",
+  fontSize: "0.9rem",
+  borderBottom: "0.5px dashed white"
 };

@@ -54,6 +54,49 @@ router.post("/", checkJwt, async (req, res) => {
     }
 });
 
+router.put("/:id", checkJwt, async (req, res) => {
+  try {
+        const user = await getOrCreateUser(req.auth);
+        const { id } = req.params;
+
+        const {
+            goal,
+            startDate,
+            initialAmount,
+            contributionInterval,
+            contributionAmount,
+            targetDate,
+            targetAmount,
+            aer,
+        } = req.body;
+
+        const { data, error } = await supabase
+        .from("savings")
+        .update({
+            goal,
+            startDate,
+            initialAmount: Number(initialAmount),
+            contributionInterval,
+            contributionAmount: Number(contributionAmount),
+            targetDate,
+            targetAmount: Number(targetAmount),
+            aer,
+        })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+        if (error) throw error;
+
+        res.json(data);
+    } catch (err) {
+        console.error("UPDATE savings error:", err);
+        res.status(500).json({ error: "Failed to update savings" });
+    }
+});
+
+
 router.delete("/:id", checkJwt, async (req, res) => {
     try {
         const user = await getOrCreateUser(req.auth);
