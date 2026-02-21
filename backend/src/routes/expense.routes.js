@@ -28,7 +28,7 @@ router.get("/", checkJwt, async (req, res) => {
 router.post("/", checkJwt, async (req,res) => {
     try {
         const user = await getOrCreateUser(req.auth);
-        const { name, amount, date, reoccurring } = req.body;
+        const { name, amount, date, category, reoccurring } = req.body;
 
         const { data, error } = await supabase
             .from("expense")
@@ -38,6 +38,7 @@ router.post("/", checkJwt, async (req,res) => {
                     name,
                     amount: Number(amount),
                     date,
+                    category,
                     reoccurring: Number(reoccurring),
                 },
             ])

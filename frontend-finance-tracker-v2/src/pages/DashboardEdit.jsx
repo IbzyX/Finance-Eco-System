@@ -12,6 +12,7 @@ import SavingProjection from "../components/widgets/SavingProjection";
 import TotalWealth from "../components/widgets/TotalWealth";
 import Income from "../components/widgets/income";
 import Investments from "../components/widgets/Investment";
+import Habits from "../components/widgets/Habits";
 
 
 import "react-grid-layout/css/styles.css";
@@ -66,7 +67,7 @@ export default function DashboardEdit() {
 
 
         { id: "Upcoming Bills", size: "medium", component: <UpcomingBill /> },
-        { id: "Habits", size: "medium", component: <p>Habits placeholder</p> },
+        { id: "Habits", size: "medium", component: <Habits /> },
         { id: "Debt", size: "medium", component: <p>Debt placeholder</p> },
         { id: "Expense", size: "medium", component: <p>Expense placeholder</p> },
 

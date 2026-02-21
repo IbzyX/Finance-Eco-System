@@ -14,12 +14,14 @@
     "install:all": "npm install --workspaces"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "eslint": "^10.0.1"
   },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "pdfjs-dist": "^5.4.530",
-    "react-router-dom": "^7.11.0"
+    "react-router-dom": "^7.11.0",
+    "recharts": "^3.7.0"
   }
 }

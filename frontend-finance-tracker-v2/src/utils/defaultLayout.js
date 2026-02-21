@@ -12,5 +12,5 @@ export const defaultLayout = [
   { i: "Cashflow Chart", ...sizeMap.medium, x: 0, y: 10 },
   { i: "Investments", ...sizeMap.large, x: 1, y: 10 },
   { i: "Savings Projection", ...sizeMap.large, x: 0, y: 16 },
-  { i: "Habits", ...sizeMap.medium, x: 2, y: 16 },
+  { i: "Habits", ...sizeMap.large, x: 2, y: 16 },
 ];

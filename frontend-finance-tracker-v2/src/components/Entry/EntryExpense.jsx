@@ -5,8 +5,9 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 export default function EntryExpense () {
     const [expense, setExpense] = useState([]);
-    const [newExpense, setNewExpense] = useState({ name:"", amount:"", date:"", reoccurring:""});
+    const [newExpense, setNewExpense] = useState({ name:"", amount:"", date:"", category:"", reoccurring:"" });
     const { getAccessTokenSilently, isAuthenticated} = useAuth0();
+    const [useToday, setUseToday] = useState(false);
 
     useEffect(() => {
         const fetchExpense = async () => {
@@ -28,7 +29,14 @@ export default function EntryExpense () {
         }
     }, []);
 
-
+    const categories = [
+        "Food",
+        "Transport",
+        "Shopping",
+        "Entertainment",
+        "Health",
+        "Other",
+    ];
     
 
     const handleChange = (e) => {
@@ -41,6 +49,7 @@ export default function EntryExpense () {
             !newExpense.name.trim() ||
             !newExpense.amount ||
             !newExpense.date ||
+            !newExpense.category ||
             !newExpense.reoccurring
         ) {
             showWarning("Please fill all fields before adding Expense.");
@@ -71,7 +80,7 @@ export default function EntryExpense () {
             setExpense(prev => [...prev, savedExpense]);
             showSuccess(`Expense "${newExpense.name}" added successfully!`);
 
-            setNewExpense({ name: "", amount: "", date: "", reoccurring: "", totalAmount:"" });
+            setNewExpense({ name: "", amount: "", date: "", category: "", reoccurring: "", totalAmount:"" });
         } catch (err) {
             console.error("Error adding expense: ", err);
         }
@@ -80,7 +89,7 @@ export default function EntryExpense () {
 
     const removeExpense = async (id) => {
         try {
-            const token = getAccessTokenSilently();
+            const token = await getAccessTokenSilently();
             await fetch(`http://localhost:5000/api/expense/${id}`, {
                 method: "DELETE",
                 headers: { 
@@ -120,7 +129,7 @@ export default function EntryExpense () {
             <div
                 style={{
                 display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
+                gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
                 alignItems: "center",
                 
                 marginBottom: "1rem",
@@ -147,13 +156,59 @@ export default function EntryExpense () {
                     style={inputStyle}
                 />
                 
-                <input
-                    type="date"
-                    name="date"
-                    value={newExpense.date}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center"}}>
+                    <input
+                        type="date"
+                        name="date"
+                        value={
+                            useToday ? new Date().toISOString().split("T")[0] : newExpense.date
+                        }
+                        onChange={handleChange}
+                        disabled={useToday}
+                        style={{
+                            ...inputStyle,
+                            opacity: useToday ? 0.4 : 1,
+                            borderBottom: useToday ? "1px dashed #666" : "1px solid #9cff66",
+                            cursor: useToday ? "not-allowed" : "pointer"
+                        }}
+                    />
+                    <label style={{ fontSize: "1rem", marginTop: "4px" }}>
+                        <input
+                            type="checkbox"
+                            checked={useToday}
+                            onChange={(e) => {
+                                const checked = e.target.checked;
+                                setUseToday(checked);
+
+                                if (checked) {
+                                    setNewExpense((prev) => ({
+                                        ...prev,
+                                        date: new Date().toISOString().split("T")[0]
+                                    }));
+                                }
+                            }}
+                        />
+                        Today
+                    </label>
+                </div>
+
+                <select
+                    name="category"
+                    value={newExpense.category}
                     onChange={handleChange}
-                    style={inputStyle}
-                />
+                    style={{
+                        ...inputStyle,
+                        backgroundColor: "#2b2b2b",  
+                    }}
+                >
+                    <option value="">Category</option>
+                    {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                            {cat}
+                        </option>
+                    ))}
+                </select>
+
                 <input
                     type="number"
                     name="reoccurring"
@@ -179,6 +234,7 @@ export default function EntryExpense () {
                         <th>Name</th>
                         <th>Amount</th>
                         <th>Date</th>
+                        <th>Category</th>
                         <th>Reoccurring</th>
                         <th>Total Amount</th>
                         <th></th>
@@ -190,6 +246,7 @@ export default function EntryExpense () {
                             <td>{expense.name}</td>
                             <td>{Number(expense.amount).toFixed(2)}</td>
                             <td>{expense.date}</td>
+                            <td>{expense.category}</td>
                             <td>{expense.reoccurring}</td>
                             <td>£{(expense.amount * expense.reoccurring).toFixed(2)}</td>
                             <td>
