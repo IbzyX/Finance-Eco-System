@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Habits() {
@@ -53,15 +53,25 @@ export default function Habits() {
         ) : (
         <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={chartData}>
-            <PolarGrid />
-            <PolarAngleAxis dataKey="category" />
-            <PolarRadiusAxis />
-            <Radar
-                dataKey="value"
-                stroke="#9cff66"
-                fill="#9cff66"
-                fillOpacity={0.6}
-            />
+                <PolarGrid stroke="#333" />
+                <PolarAngleAxis dataKey="category" />
+                <PolarRadiusAxis tick={false} axisLine={false} />
+
+                <Tooltip
+                    contentStyle={{
+                        backgroundColor: "#111",
+                        border: "1px solid #333",
+                        borderRadius: "8px"
+                    }}
+                    formatter={(value) => [`£${value}`, "Amount"]}
+                />
+                <Radar
+                    dataKey="value"
+                    stroke="#9cff66"
+                    fill="#9cff66"
+                    fillOpacity={0.6}
+                    activeDot={{ r: 6 }}
+                />
             </RadarChart>
         </ResponsiveContainer>
         )}
