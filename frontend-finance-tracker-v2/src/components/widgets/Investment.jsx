@@ -57,12 +57,6 @@ export default function Investments() {
     const fetchStockData = async (holding) => {
         if (!holding) return;
 
-        if (!livePrice || isNaN(livePrice)) {
-            setError("Invalid price data from Yahoo");
-            setLoading(false);
-            return;
-        }
-
         const symbol = (currentHolding?.name || "").trim().toUpperCase();
         if (!symbol) return;
 
@@ -71,12 +65,15 @@ export default function Investments() {
 
         try {
             const yahooURL = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1y`;
-            const proxyURL = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooURL)}`;
-            const res = await fetch(proxyURL);
+            const res = await fetch(
+                `http://localhost:5000/api/stocks/${symbol}`
 
-            if (!res.ok) throw new Error(`Yahoo error ${res.status}`);
+            );
+            if (!res.ok) {
+                throw new Error("Failed to fetch bills");
+            }
 
-            const json = await res.json();
+            const json = await res.json();            
             const result = json?.chart?.result?.[0];
             if (!result) throw new Error("Invalid data");
 
@@ -94,22 +91,19 @@ export default function Investments() {
             setChartData({
                 datasets: [
                     {
-                        label: `${symbol} Price`,
-                        data: candles,
-                        type: CandlestickController.id,
-                        upColor: "#48e055",
-                        downColor: "#ff5252",
-                        borderColor: "#999",
-                        color: {
-                            up: "#48e055",
-                            down: "#ff5252",
-                            unchanged: "#aaa",
-                        },
+                    label: `${symbol} Price`,
+                    data: candles,
+                    color: {
+                        up: "#48e055",
+                        down: "#ff5252",
+                        unchanged: "#aaa",
+                    },
                     },
                 ],
             });
 
             const closes = quote.close || [];
+            
             const livePrice =
                 result.meta?.regularMarketPrice || closes[closes.length - 1];
             const prevClose = closes[closes.length - 2] || livePrice;
@@ -129,6 +123,12 @@ export default function Investments() {
                 prevClose > 0
                     ? ((livePrice - prevClose) / prevClose) * 100
                     : 0;
+
+             if (!livePrice || isNaN(livePrice)) {
+                setError("Invalid price data from Yahoo");
+                setLoading(false);
+                return;
+            }
 
             setMetrics({
                 symbol,

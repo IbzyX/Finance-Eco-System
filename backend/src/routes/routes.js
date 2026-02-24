@@ -8,6 +8,7 @@ import incomeRoutes from  "./income.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 import savingsRoutes from "./savings.route.js";
 import expenseRoutes from "./expense.routes.js";
+import stockRoutes from "./stocks.routes.js";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use("/dashboard_layout", dashboardRoutes);
 router.use("/savings", savingsRoutes);
 router.use("/expense", expenseRoutes);
 
+router.use("/stocks", stockRoutes);
 
 
 router.get("/profile", checkJwt, async (req, res) => {
