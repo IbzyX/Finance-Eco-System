@@ -3,6 +3,7 @@ import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { MdEdit } from "react-icons/md";
 import { showSuccess, showWarning } from "../../utils/toast";
 import "../../pages/css/EntryForm.css";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function EntryInvestments() {
     const [Investment, setInvestment] = useState([]);
@@ -16,7 +17,7 @@ export default function EntryInvestments() {
         avarageValue: "",
         DoP: "",
     });
-    const [hasLoaded, setHasLoaded] = useState(false);
+    const { getAccessTokenSilently, isAuthenticated} = useAuth0();
 
     const [isEditing, setIsEditing] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
@@ -32,25 +33,32 @@ export default function EntryInvestments() {
     });
 
     useEffect(() => {
-        const savedInvestment = localStorage.getItem("investment");
-        if (savedInvestment && savedInvestment !== "[]" && savedInvestment !== "null") {
-            setInvestment(JSON.parse(savedInvestment));
-        }
-        setHasLoaded(true);
-    }, []);
+            const fetchInvestments = async () => {
+                try {
+                    const token = await getAccessTokenSilently();
+                    const res = await fetch("http://localhost:5000/api/stocks", {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });                
+                    const data = await res.json();
+                    setInvestment(data);
+                } catch (err) {
+                    console.error("Error fetching investments: ", err);
+                }
+            };
+            if (isAuthenticated) {
+                fetchInvestments();
+            }
+        }, []);
 
-    useEffect(() => {
-        if (hasLoaded) {
-            localStorage.setItem("investment", JSON.stringify(Investment));
-        }
-    }, [Investment, hasLoaded]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNewInvestment((prev) => ({ ...prev, [name]: value }));
     };
 
-    const addInvestment = () => {
+    const addInvestment = async () => {
         if (
             !newInvestment.name.trim() ||
             !newInvestment.type ||
@@ -65,30 +73,75 @@ export default function EntryInvestments() {
             return;
         }
 
-        const updated = [...Investment, { ...newInvestment }];
-        setInvestment(updated);
-        localStorage.setItem("investment", JSON.stringify(updated));
-        showSuccess(`Investment "${newInvestment.name}" added successfully!`);
 
-        setNewInvestment({ 
-            name: "",
-            type: "",
-            amount: "",
-            currency: "",
-            contributionInterval: "",
-            contributionAmount: "",
-            avarageValue: "",
-            DoP: "",
-        });
+        try {
+            const amount = Number(newInvestment.amount);
+            const contributionAmount = Number(newInvestment.contributionAmount);
+            const contributionInterval = Number(newInvestment.contributionInterval);
+            const avarageValue = Number(newInvestment.avarageValue);
+            
+
+            const token = await getAccessTokenSilently();
+            const res = await fetch("http://localhost:5000/api/stocks",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    ...newInvestment,
+                    type: newInvestment.type,
+                    amount,
+                    currency: newInvestment.currency,
+                    contributionInterval,
+                    contributionAmount,
+                    avarageValue,
+                    DoP: newInvestment.DoP,
+                    
+                }),
+            });
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.log("SERVER ERROR:", errorText); 
+                throw new Error("Failed to save investments");
+            }
+
+            const savedInvestments = await res.json();
+            setInvestment(prev => [...prev, savedInvestments]);
+            showSuccess(`Investment "${newInvestment.name}" added successfully!`);            
+            setNewInvestment({ 
+                name: "",
+                type: "",
+                amount: "",
+                currency: "",
+                contributionInterval: "",
+                contributionAmount: "",
+                avarageValue: "",
+                DoP: "",
+            });
+        } catch (err) {
+            console.error("Error adding Investments: ", err);
+        }
     };
+        
 
-    const removeInvestment = (index) => {
-        const removedInvestment = Investment[index];
-        const updated = Investment.filter((_,i) => i !== index);
-        setInvestment(updated);
-        localStorage.setItem("investment", JSON.stringify(updated));
+        
+    
 
-        showSuccess(`Investment "${removedInvestment?.name || "Unknown"}" removed succesfully!`);
+    const removeInvestment = async (id) => {
+        try {
+            const token = await getAccessTokenSilently();
+            await fetch(`http://localhost:5000/api/stocks/${id}`, {
+                method: "DELETE",
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            setInvestment(prev => prev.filter(investment => investment.id !== id));
+            showSuccess("Investments removed successfully!");
+        } catch (err) {
+            console.error("Error deleting investments: ", err);
+        }
     };
 
     const startEditInvestment = (index) => {
@@ -305,7 +358,7 @@ export default function EntryInvestments() {
                     </thead>
                     <tbody>
                         {Investment.map((investment, i) => (
-                            <tr key={i}>
+                            <tr key={investment.id}>
                             <td>{investment.name}</td>
                             <td>{investment.type}</td>
                             <td>{investment.amount}</td>
@@ -316,7 +369,7 @@ export default function EntryInvestments() {
                             <td>{investment.DoP}</td>
                             <td>
                                 <button
-                                    onClick={() => startEditInvestment(i)}
+                                    onClick={() => startEditInvestment(investment.id)}
                                     style={{
                                         ...buttonRemoveStyle,
                                         backgroundColor: "#4caf50",
