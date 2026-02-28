@@ -84,7 +84,7 @@ export default function Expense() {
     return (
         <div>
             <p>
-                Total Expense due in 30 days:{" "}
+                Total Expense in 30 days:{" "}
                 <strong style={{color:"#00e676"}}>£{Number(total || 0).toFixed(2)}</strong>
             </p>
 

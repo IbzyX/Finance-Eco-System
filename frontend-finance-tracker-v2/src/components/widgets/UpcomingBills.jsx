@@ -94,7 +94,7 @@ export default function UpcomingBillsWidget() {
         <div className="bills-table-container">
           <table>
             <thead>
-              <tr>
+              <tr style={{ color: "#9cff66" }}>
                 <th>Bill</th>
                 <th>Due Date</th>
                 <th>Amount</th>
