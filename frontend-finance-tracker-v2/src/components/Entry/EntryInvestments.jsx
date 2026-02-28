@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
-import { MdEdit } from "react-icons/md";
+import { AiOutlinePlus, AiOutlineMinus, AiOutlineEdit } from "react-icons/ai";
 import { showSuccess, showWarning } from "../../utils/toast";
 import "../../pages/css/EntryForm.css";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -17,20 +16,10 @@ export default function EntryInvestments() {
         avarageValue: "",
         DoP: "",
     });
-    const { getAccessTokenSilently, isAuthenticated} = useAuth0();
+     const { getAccessTokenSilently, isAuthenticated} = useAuth0();
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [editIndex, setEditIndex] = useState(null);
-    const [editInvestment, setEditInvestment] = useState({
-        name: "",
-        type: "",
-        amount: "",
-        currency: "",
-        contributionInterval: "",
-        contributionAmount: "",
-        avarageValue: "",
-        DoP: "",
-    });
+    const [editingInvestment, setEditingInvestment] = useState(null);
+
 
     useEffect(() => {
             const fetchInvestments = async () => {
@@ -75,12 +64,6 @@ export default function EntryInvestments() {
 
 
         try {
-            const amount = Number(newInvestment.amount);
-            const contributionAmount = Number(newInvestment.contributionAmount);
-            const contributionInterval = Number(newInvestment.contributionInterval);
-            const avarageValue = Number(newInvestment.avarageValue);
-            
-
             const token = await getAccessTokenSilently();
             const res = await fetch("http://localhost:5000/api/stocks",{
                 method: "POST",
@@ -91,11 +74,11 @@ export default function EntryInvestments() {
                 body: JSON.stringify({
                     ...newInvestment,
                     type: newInvestment.type,
-                    amount,
+                    amount: newInvestment.amount,
                     currency: newInvestment.currency,
-                    contributionInterval,
-                    contributionAmount,
-                    avarageValue,
+                    contributionInterval: newInvestment.contributionInterval,
+                    contributionAmount: newInvestment.contributionAmount,
+                    avarageValue: newInvestment.avarageValue,
                     DoP: newInvestment.DoP,
                     
                 }),
@@ -144,44 +127,29 @@ export default function EntryInvestments() {
         }
     };
 
-    const startEditInvestment = (index) => {
-        const inv = Investment[index];
-        if(!inv) return;
-
-        setEditIndex(index);
-        setEditInvestment({ ...inv });
-        setIsEditing(true);
-    };
-
-    const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditInvestment((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const saveEditInvestment = () => {
-        if (
-            !editInvestment.amount ||
-            !editInvestment.contributionInterval ||
-            !editInvestment.contributionAmount ||
-            !editInvestment.avarageValue 
-        ) {
-            showWarning("Please fill all fields before saving changes.");
-            return;
+    const handleUpdateInvestments = async () => {
+        try {
+            const token = await getAccessTokenSilently();
+            const res = await fetch(`http://localhost:5000/api/stocks/${editingInvestment.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(editingInvestment),
+                }
+            );
+            if (!res.ok) throw new Error("Failed to update");
+            const updated = await res.json();
+        
+            setInvestment((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+            showSuccess("Investments updated successfully!");
+            setEditingInvestment(null);
+        } catch (err) {
+          console.error("Update Error: ", err);
         }
-
-        const updated = [...Investment];
-        updated[editIndex] = { ...editInvestment };
-        setInvestment(updated);
-        localStorage.setItem("investment",JSON.stringify(updated));
-        showSuccess(`Investment "${editInvestment.name}" updated successfully!`);
-
-        setIsEditing(false);
-        setEditIndex(null);
-    };
-
-    const cancelEdit = () => {
-        setIsEditing(false);
-        setEditIndex(null);
+        
     };
 
     const buyDate = new Date(newInvestment.DoP);
@@ -332,10 +300,7 @@ export default function EntryInvestments() {
                     style={inputStyle}
                 />
 
-                <button
-                    onClick={addInvestment}
-                    style={buttonAddStyle}
-                    >
+                <button onClick={addInvestment} style={buttonAddStyle}>
                     <AiOutlinePlus />
                 </button>
 
@@ -369,19 +334,15 @@ export default function EntryInvestments() {
                             <td>{investment.DoP}</td>
                             <td>
                                 <button
-                                    onClick={() => startEditInvestment(investment.id)}
-                                    style={{
-                                        ...buttonRemoveStyle,
-                                        backgroundColor: "#4caf50",
-                                        color: "#000",
-                                    }}
-                                >
-                                    <MdEdit size={20} color="#000" />
+                                    onClick={() => setEditingInvestment(investment)}
+                                    style={buttonEditStyle}
+                                    >
+                                        <AiOutlineEdit />
                                 </button>
                             </td>
                             <td>
                                 <button
-                                onClick={() => removeInvestment(i)}
+                                onClick={() => removeInvestment(investment.id)}
                                 style={buttonRemoveStyle}
                                 >
                                 <AiOutlineMinus />
@@ -397,212 +358,206 @@ export default function EntryInvestments() {
                 </p>
             )}
 
-            {isEditing && (
-                <div 
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        backgroundColor: "rgba(0,0,0,0.6)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: 1000,
-                    }}
-                >
-                    <div
-                        style={{
-                            backgroundColor: "#222",
-                            padding: "1.5rem 2rem",
-                            borderRadius: "12px",
-                            maxWidth: "1000px",
-                            width: "100%",
-                            boxShadow: "0 0 20px rgba(0,0,0,0.5)",
-                        }}
-                    >
-                        <h2 style={{ textAlign: "center", marginBottom: "1.5rem", fontWeight: "bold", textDecoration: "underline" }}>
-                            Edit Investment
-                        </h2>
+            {editingInvestment && (
+                <div style={overlayStyle}>
+                    <div style={modalStyle}>
+                        <h3 style={{ 
+                            display: "flex", 
+                            justifyContent: "center", 
+                            alignContent: "center", 
+                            fontSize: "1.25rem",
+                        }}>
+                            Edit Investments
+                    
+                            <button
+                                onClick={() => setEditingInvestment(null)}
+                                style={{ 
+                                gap:"2rem", 
+                                fontSize: "1.25rem", 
+                                color: "red", 
+                                backgroundColor: "#1e1e1e", 
+                                border: "none",
+                                cursor: "pointer",
+                                }}
+                            >
+                                ✕
+                            </button>
 
+                        </h3>
+            
 
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
-                                gap: "0.5rem",
-                                marginBottom: "1rem",
-                            }}
-                        >
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", marginBottom: "1.25rem", fontWeight: "bold" }}>Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    placeholder="Name"
-                                    value={editInvestment.name}
-                                    onChange={handleEditChange}
-                                    style={inputStyle}
-                                />
-                            </div>
-
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", marginBottom: "1.25rem", fontWeight: "bold" }}>Type</label>
-                                <select
-                                    name="type"
-                                    value={editInvestment.type}
-                                    onChange={handleEditChange}
-                                    style={{
-                                        ...inputStyle,
-                                        backgroundColor: "#2b2b2b",
-                                        borderRadius: "5px",
-                                        color: "white",
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    <option value="">Type</option>
-                                    <option value="stock">Stock</option>
-                                    <option value="ETF">ETF</option>
-                                    <option value="real-estate">Real-estate</option>
-                                </select>
-                            </div>
-                            
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", marginBottom: "1.25rem", fontWeight: "bold" }}>Amount</label>
-                                <input
-                                    type="number"
-                                    name="amount"
-                                    placeholder="Amount"
-                                    value={editInvestment.amount}
-                                    onChange={handleEditChange}
-                                    style={inputStyle}
-                                />
-                            </div>
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", marginBottom: "1.25rem", fontWeight: "bold" }}>Currency</label>
-                                <select
-                                    name="currency"
-                                    value={editInvestment.currency}
-                                    onChange={handleEditChange}
-                                    style={{
-                                        ...inputStyle,
-                                        backgroundColor: "#2b2b2b",
-                                        borderRadius: "5px",
-                                        color: "white",
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    <option value="">Currency</option>
-                                    <option value="£">£</option>
-                                    <option value="$">$</option>
-                                    <option value="€">€</option>
-                                </select>
-                            </div>
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", fontWeight: "bold", textAlign: "center" }}>Contribution<br />Interval</label>
-                                <select
-                                    name="contributionInterval"
-                                    value={editInvestment.contributionInterval}
-                                    onChange={handleEditChange}
-                                    style={{
-                                        ...inputStyle,
-                                        backgroundColor: "#2b2b2b",
-                                        maxWidth: "100px",
-                                        borderRadius: "5px",
-                                        color: "white",
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    <option value="">Contribution Intervals</option>
-                                    <option value="no">One-off</option>
-                                    <option value="daily">Daily</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="fortnightly">Fortnightly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="quarterly">Quarterly</option>
-                                    <option value="biannually">Bi-Annually</option>
-                                    <option value="annually">Annually</option>
-                                </select>
-                            </div>
-
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", fontWeight: "bold", textAlign: "center" }}>Contribution<br />Amount</label>
-                                <input
-                                    type="number"
-                                    name="contributionAmount"
-                                    placeholder="Contribution Amount"
-                                    value={editInvestment.contributionAmount}
-                                    onChange={handleEditChange}
-                                    style={inputStyle}
-                                />
-                            </div>
-
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", fontWeight: "bold", textAlign: "center" }}>Avarage<br />Value</label>
-                                <input
-                                    type="number"
-                                    name="avarageValue"
-                                    placeholder="Avarage Value"
-                                    value={editInvestment.avarageValue}
-                                    onChange={handleEditChange}
-                                    style={inputStyle}
-                                />
-                            </div>
-
-                            <div style={fieldGroup}>
-                                <label style={{ color: "#9cff66", fontWeight: "bold", textAlign: "center" }}>Date of<br />Purchase</label>
-                                <input
-                                    type="date"
-                                    name="DoP"
-                                    placeholder="Date of Purchase"
-                                    value={editInvestment.DoP}
-                                    onChange={handleEditChange}
-                                    style={inputStyle}
-                                />
-                            </div>
+                        <div style={formGroupStyle}>
+                            <label>Name</label>
+                            <input
+                                type="text"
+                                value={editingInvestment.name}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, name: e.target.value })}
+                                style={inputStyle}
+                            />
+                        </div>
+                        
+                        <div style={formGroupStyle}>
+                            <label>Type</label>
+                            <select  
+                                value={editingInvestment.type}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, type: e.target.value })}
+                                style={{
+                                    ...inputStyle,
+                                    backgroundColor: "#1e1e1e",
+                                    borderRadius: "5px",
+                                    color: "white",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <option value="">Type</option>
+                                <option value="stock">Stock</option>
+                                <option value="ETF">ETF</option>
+                                <option value="real-estate">Real-estate</option>
+                            </select>
                         </div>
 
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                gap: "0.75rem",
-                                marginTop: "1rem",
-                            }}
-                        >
-                            <button
-                                onClick={cancelEdit}
+                        <div style={formGroupStyle}>
+                            <label>Amount</label>
+                            <input  
+                                type="number"
+                                value={editingInvestment.amount}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, amount: e.target.value })}
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div style={formGroupStyle}>
+                            <label>Currency</label>
+                            <select  
+                                value={editingInvestment.currency}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, currency: e.target.value })}
                                 style={{
-                                padding: "0.5rem 1rem",
-                                backgroundColor: "#555",
-                                border: "none",
-                                borderRadius: "6px",
-                                color: "white",
-                                cursor: "pointer",
+                                    ...inputStyle,
+                                    backgroundColor: "#1e1e1e",
+                                    borderRadius: "5px",
+                                    color: "white",
+                                    textAlign: "center",
                                 }}
                             >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={saveEditInvestment}
+                                <option value="">Currency</option>
+                                <option value="£">£</option>
+                                <option value="$">$</option>
+                                <option value="€">€</option>
+                            </select>
+                        </div>
+
+                        <div style={formGroupStyle}>
+                            <label>Currency</label>
+                            <select  
+                                value={editingInvestment.contributionInterval}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, contributionInterval: e.target.value })}
                                 style={{
-                                padding: "0.5rem 1rem",
+                                    ...inputStyle,
+                                    backgroundColor: "#1e1e1e",
+                                    borderRadius: "5px",
+                                    color: "white",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <option value="">Contribution Intervals</option>
+                                <option value="no">One-off</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="fortnightly">Fortnightly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="biannually">Bi-Annually</option>
+                                <option value="annually">Annually</option>
+                            </select>
+                        </div>
+
+                        <div style={formGroupStyle}>
+                            <label>Contribution Amount</label>
+                            <input  
+                                type="number"
+                                value={editingInvestment.contributionAmount}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, contributionAmount: e.target.value })}
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div style={formGroupStyle}>
+                            <label>Avarage Value</label>
+                            <input  
+                                type="number"
+                                value={editingInvestment.avarageValue}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, avarageValue: e.target.value })}
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div style={formGroupStyle}>
+                            <label>Date of Purchase</label>
+                            <input  
+                                type="date"
+                                value={editingInvestment.DoP}
+                                onChange={(e) => setEditingInvestment({ ...editingInvestment, DoP: e.target.value })}
+                                style={inputStyle}
+                            />
+                        </div>
+
+
+                        <div style={{ display: "flex", justifyContent: "center", alignItems:"center", gap: "10px", marginTop: "20px" }}>
+                            <button onClick={handleUpdateInvestments} style={{
                                 backgroundColor: "#9cff66",
-                                border: "none",
-                                borderRadius: "6px",
-                                color: "#000",
-                                cursor: "pointer",
+                                border: "#000",
+                                borderRadius: "20px",
+                                padding: "10px 20px",
                                 fontWeight: "bold",
-                                }}
-                            >
+                                color: "#000",
+                                fontSize: "1.2rem",
+                                cursor: "pointer",
+                            }}>
                                 Save
                             </button>
-                        </div>
 
+                        
+                        </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
+
+const overlayStyle = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundColor: "rgba(0,0,0,0.7)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+};
+
+const modalStyle = {
+  backgroundColor: "#1e1e1e",
+  padding: "2rem",
+  borderRadius: "15px",
+  width: "400px",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const formGroupStyle = {
+  display: "flex",
+  flexDirection: "column",
+  marginBottom: "12px",
+  textAlign: "left",
+  color: "#9cff66",
+  fontSize: "0.9rem",
+  borderBottom: "0.5px dashed white"
+};
+
 
 const inputStyle = {
     background: "transparent",
@@ -620,6 +575,18 @@ const tableStyle = {
     borderCollapse: "collapse",
     textAlign: "center",
     color: "white",
+};
+
+const buttonEditStyle = {
+  backgroundColor: "#6ce5e8",
+  border: "none",
+  borderRadius: "50%",
+  color: "#000",
+  fontSize: "1.2rem",
+  width: "30px",
+  height: "30px",
+  cursor: "pointer",
+  marginRight: "5px",
 };
 
 const buttonAddStyle = {

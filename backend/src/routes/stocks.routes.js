@@ -25,7 +25,7 @@ router.get ("/", checkJwt, async (req, res) => {
 router.post("/", checkJwt, async (req, res) => {
   try {
     const user = await getOrCreateUser(req.auth);
-    const { name, type, amount, currency, contribuitonInterval, contribuitonAmount, avarageValue, DoP } = req.body;
+    const { name, type, amount, currency, contributionInterval, contributionAmount, avarageValue, DoP } = req.body;
     const { data, error } = await supabase
       .from("investments")
       .insert([
@@ -35,8 +35,8 @@ router.post("/", checkJwt, async (req, res) => {
           type,
           amount: Number(amount),
           currency,
-          contribuitonInterval,
-          contribuitonAmount: Number(contribuitonAmount),
+          contributionInterval,
+          contributionAmount: Number(contributionAmount),
           avarageValue: Number(avarageValue),
           DoP,
         },
@@ -66,6 +66,48 @@ router.delete("/:id", checkJwt, async (req,res) => {
     } catch (err) { 
         console.error("DELETE investment error: ", err);
         res.status(500).json({ error: "Failed to delete investment" });
+    }
+});
+
+router.put("/:id", checkJwt, async (req, res) => {
+  try {
+        const user = await getOrCreateUser(req.auth);
+        const { id } = req.params;
+
+        const {
+            name,
+            type,
+            amount,
+            currency,
+            contributionInterval,
+            contributionAmount,
+            avarageValue,
+            DoP,
+        } = req.body;
+
+        const { data, error } = await supabase
+        .from("investments")
+        .update({
+            name,
+            type,
+            amount: Number(amount),
+            currency,
+            contributionInterval,
+            contributionAmount: Number(contributionAmount),
+            avarageValue: Number(avarageValue),
+            DoP,
+        })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+        if (error) throw error;
+
+        res.json(data);
+    } catch (err) {
+        console.error("UPDATE investment error:", err);
+        res.status(500).json({ error: "Failed to update investments" });
     }
 });
 
